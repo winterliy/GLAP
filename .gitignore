@@ -21,7 +21,6 @@ nbproject/
 nbactions.xml
 
 # Gradle
-!gradle-wrapper.jar
 .gradle/
 build/
 */build/
@@ -63,3 +62,4 @@ manifest.mf
 /glap-checkstyle/build.gradle.kts
 *.jar
 test-plugin.settings.gradle.kts
+!gradle/wrapper/gradle-wrapper.jar
