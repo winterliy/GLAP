@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/chunk/PalettedContainer.java
++++ b/net/minecraft/world/level/chunk/PalettedContainer.java
+@@ -57,7 +_,7 @@
+     private static <T, C extends PalettedContainerRO<T>> Codec<C> codec(
+         final Codec<T> elementCodec, final Strategy<T> strategy, final T defaultValue, final PalettedContainerRO.Unpacker<T, C> unpacker
+     ) {
+-        return RecordCodecBuilder.<PalettedContainerRO.PackedData>create(
++        return RecordCodecBuilder.<PalettedContainerRO.PackedData<T>>create( // GLAP - explicit type for ECJ
+                 i -> i.group(
+                         elementCodec.mapResult(ExtraCodecs.orElsePartial(defaultValue))
+                             .listOf()

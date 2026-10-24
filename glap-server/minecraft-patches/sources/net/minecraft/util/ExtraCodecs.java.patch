@@ -1,0 +1,11 @@
+--- a/net/minecraft/util/ExtraCodecs.java
++++ b/net/minecraft/util/ExtraCodecs.java
+@@ -617,7 +_,7 @@
+             public <T> RecordBuilder<T> encode(final V input, final DynamicOps<T> ops, final RecordBuilder<T> builder) {
+                 K type = (K)typeGetter.apply(input);
+                 builder.add(typeKey, typeCodec.encodeStart(ops, type));
+-                DataResult<T> parameters = this.encode(valueCodec.apply(type), input, ops);
++                DataResult<T> parameters = this.encode((Codec<V>) valueCodec.apply(type), input, ops); // GLAP - explicit type for ECJ
+                 if (parameters.result().isEmpty() || !Objects.equals(parameters.result().get(), ops.emptyMap())) {
+                     builder.add(valueKey, parameters);
+                 }

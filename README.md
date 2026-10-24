@@ -66,7 +66,8 @@ paper-api/, paper-server/         applyAllPatches가 생성 (Git에 올라가지
 ```
 
 - Paper·마인크래프트 코드가 직접 부르는 클래스(`GlapConfig`, `GlapCommand`, `GlapVersionFetcher`)는 `src/main/java`에 Java로 써요.
-- Paper와 상관없는 GLAP 내부 로직(예: `GlapReleases` GitHub 릴리스 확인)은 `src/main/kotlin`에 Kotlin으로 써요.
+- Paper와 상관없는 GLAP 내부 로직(예: `GitHubUpdateChecker` GitHub 릴리스 확인)은 `src/main/kotlin`에 Kotlin으로 써요.
+- Java에서 Kotlin 클래스를 직접 부르지 않아요. Java 인터페이스(`UpdateChecker`)를 Kotlin이 구현하고 `META-INF/services`로 불러와요. 그래야 VS Code(Eclipse 컴파일러)에서도 오류가 안 나요.
 - 패치에는 위 클래스를 부르는 한두 줄만 넣어요. 패치가 작을수록 Paper 업데이트가 쉬워요.
 - Paper·마인크래프트 코드에 넣는 패치는 원본이 Java라 Java로 써요. 바꾼 줄에는 `// GLAP` 주석을 달아요.
 
@@ -99,8 +100,8 @@ Minecraft 버전이 바뀌면(예: 26.4) 새 브랜치(`26.4`)를 만들어요. 
 2. `v<버전>` 태그를 push하면 GitHub Actions가 jar를 빌드해 릴리스를 만들어요.
 
    ```sh
-   git tag -a v1.1.0 -m "GLAP1 1.1.0"
-   git push origin v1.1.0
+   git tag -a v1.1.1 -m "GLAP1 1.1.1"
+   git push origin v1.1.1
    ```
 
 ## 라이선스

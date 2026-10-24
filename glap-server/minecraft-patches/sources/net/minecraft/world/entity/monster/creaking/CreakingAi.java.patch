@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/monster/creaking/CreakingAi.java
++++ b/net/minecraft/world/entity/monster/creaking/CreakingAi.java
+@@ -41,7 +_,7 @@
+             Activity.IDLE,
+             10,
+             ImmutableList.of(
+-                StartAttacking.create(
++                StartAttacking.<Creaking>create( // GLAP - explicit type for ECJ
+                     (level, mob) -> mob.isActive(), (level, mob) -> mob.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
+                 ),
+                 SetEntityLookTargetSometimes.create(8.0F, UniformInt.of(30, 60)),

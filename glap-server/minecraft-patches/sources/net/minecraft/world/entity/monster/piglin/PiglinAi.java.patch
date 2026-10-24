@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/monster/piglin/PiglinAi.java
++++ b/net/minecraft/world/entity/monster/piglin/PiglinAi.java
+@@ -197,7 +_,7 @@
+                 avoidRepellent(),
+                 SetEntityLookTarget.create(PiglinAi::isPlayerHoldingLovedItem, 14.0F),
+                 StartAttacking.<Piglin>create((level, piglin) -> piglin.isAdult(), PiglinAi::findNearestValidAttackTarget),
+-                BehaviorBuilder.triggerIf(piglin -> !piglin.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)),
++                BehaviorBuilder.triggerIf((Piglin piglin) -> !piglin.isDancing(), GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 2, 1.0F)), // GLAP - explicit type for ECJ
+                 BehaviorBuilder.triggerIf(Piglin::isDancing, GoToTargetLocation.create(MemoryModuleType.CELEBRATE_LOCATION, 4, 0.6F)),
+                 new RunOne<>(
+                     ImmutableList.of(

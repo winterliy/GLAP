@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/item/crafting/RecipeMap.java
++++ b/net/minecraft/world/item/crafting/RecipeMap.java
+@@ -57,7 +_,7 @@
+         if (remove == null) {
+             return false;
+         }
+-        final Collection<? extends RecipeHolder<?>> recipes = this.byType(remove.value().getType());
++        final Collection<? extends RecipeHolder<?>> recipes = this.byType((RecipeType) remove.value().getType()); // GLAP - explicit type for ECJ
+         return recipes.remove(remove);
+     }
+     // Paper end - replace removeRecipe implementation

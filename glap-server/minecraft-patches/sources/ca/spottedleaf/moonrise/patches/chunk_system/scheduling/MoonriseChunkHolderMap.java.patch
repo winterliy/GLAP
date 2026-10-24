@@ -1,0 +1,115 @@
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/MoonriseChunkHolderMap.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/scheduling/MoonriseChunkHolderMap.java
+@@ -203,31 +_,31 @@
+ 
+     @Override
+     public FastSortedEntrySet<ChunkHolder> long2ObjectEntrySet() {
+-        class Set extends AbstractObjectSortedSet<Long2ObjectMap.Entry<ChunkHolder>> implements FastSortedEntrySet<ChunkHolder> {
++        class Set extends AbstractObjectSortedSet<Long2ObjectMap.Entry<ChunkHolder>> implements FastSortedEntrySet<ChunkHolder> { // GLAP - qualify Entry for ECJ
+ 
+             @Override
+-            public ObjectBidirectionalIterator<Entry<ChunkHolder>> fastIterator() {
++            public ObjectBidirectionalIterator<Long2ObjectMap.Entry<ChunkHolder>> fastIterator() {
+                 return this.iterator();
+             }
+ 
+             @Override
+-            public ObjectBidirectionalIterator<Entry<ChunkHolder>> fastIterator(final Entry<ChunkHolder> from) {
+-                throw new UnsupportedOperationException();
+-            }
+-
+-            @Override
+-            public ObjectBidirectionalIterator<Entry<ChunkHolder>> iterator(final Entry<ChunkHolder> fromElement) {
+-                throw new UnsupportedOperationException();
+-            }
+-
+-            @Override
+-            public ObjectBidirectionalIterator<Entry<ChunkHolder>> iterator() {
++            public ObjectBidirectionalIterator<Long2ObjectMap.Entry<ChunkHolder>> fastIterator(final Long2ObjectMap.Entry<ChunkHolder> from) {
++                throw new UnsupportedOperationException();
++            }
++
++            @Override
++            public ObjectBidirectionalIterator<Long2ObjectMap.Entry<ChunkHolder>> iterator(final Long2ObjectMap.Entry<ChunkHolder> fromElement) {
++                throw new UnsupportedOperationException();
++            }
++
++            @Override
++            public ObjectBidirectionalIterator<Long2ObjectMap.Entry<ChunkHolder>> iterator() {
+                 final ChunkHolderManager manager = MoonriseChunkHolderMap.this.getHolderManager();
+                 final List<NewChunkHolder> holders = manager == null ? List.of() : manager.getChunkHolders();
+                 final Iterator<NewChunkHolder> iterator = holders.iterator();
+                 return new ObjectBidirectionalIterator<>() {
+                     @Override
+-                    public Entry<ChunkHolder> previous() {
++                    public Long2ObjectMap.Entry<ChunkHolder> previous() {
+                         throw new UnsupportedOperationException();
+                     }
+ 
+@@ -242,9 +_,9 @@
+                     }
+ 
+                     @Override
+-                    public Entry<ChunkHolder> next() {
++                    public Long2ObjectMap.Entry<ChunkHolder> next() {
+                         final NewChunkHolder holder = iterator.next();
+-                        return new Entry<>() {
++                        return new Long2ObjectMap.Entry<>() {
+                             @Override
+                             public long getLongKey() {
+                                 return CoordinateUtils.getChunkKey(holder.chunkX, holder.chunkZ);
+@@ -270,32 +_,32 @@
+             }
+ 
+             @Override
+-            public @Nullable Comparator<? super Entry<ChunkHolder>> comparator() {
++            public @Nullable Comparator<? super Long2ObjectMap.Entry<ChunkHolder>> comparator() {
+                 return null;
+             }
+ 
+             @Override
+-            public ObjectSortedSet<Entry<ChunkHolder>> subSet(final Entry<ChunkHolder> fromElement, final Entry<ChunkHolder> toElement) {
+-                throw new UnsupportedOperationException();
+-            }
+-
+-            @Override
+-            public ObjectSortedSet<Entry<ChunkHolder>> headSet(final Entry<ChunkHolder> toElement) {
+-                throw new UnsupportedOperationException();
+-            }
+-
+-            @Override
+-            public ObjectSortedSet<Entry<ChunkHolder>> tailSet(final Entry<ChunkHolder> fromElement) {
+-                throw new UnsupportedOperationException();
+-            }
+-
+-            @Override
+-            public Entry<ChunkHolder> first() {
+-                throw new UnsupportedOperationException();
+-            }
+-
+-            @Override
+-            public Entry<ChunkHolder> last() {
++            public ObjectSortedSet<Long2ObjectMap.Entry<ChunkHolder>> subSet(final Long2ObjectMap.Entry<ChunkHolder> fromElement, final Long2ObjectMap.Entry<ChunkHolder> toElement) {
++                throw new UnsupportedOperationException();
++            }
++
++            @Override
++            public ObjectSortedSet<Long2ObjectMap.Entry<ChunkHolder>> headSet(final Long2ObjectMap.Entry<ChunkHolder> toElement) {
++                throw new UnsupportedOperationException();
++            }
++
++            @Override
++            public ObjectSortedSet<Long2ObjectMap.Entry<ChunkHolder>> tailSet(final Long2ObjectMap.Entry<ChunkHolder> fromElement) {
++                throw new UnsupportedOperationException();
++            }
++
++            @Override
++            public Long2ObjectMap.Entry<ChunkHolder> first() {
++                throw new UnsupportedOperationException();
++            }
++
++            @Override
++            public Long2ObjectMap.Entry<ChunkHolder> last() {
+                 throw new UnsupportedOperationException();
+             }
+         }

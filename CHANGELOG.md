@@ -1,6 +1,17 @@
 # Changelog
 
+## [1.1.1] - 2026-10-24
+
+### Fixed
+- Fix the CI build: track `gradle-wrapper.jar` and drop the `.gitkeep` that paperweight read as a patch.
+- Fix Eclipse compiler (VS Code Java) errors in Minecraft and Paper sources by spelling out generic types. Behavior is unchanged.
+
+### Changed
+- Load the Kotlin update checker through `ServiceLoader`, so Java code never names a Kotlin class.
+
 ## [1.1.0] - 2026-10-24
+
+The `v1.1.0` tag was pushed, but its release build failed, so no jar was published. Use 1.1.1.
 
 ### Added
 - Add `glap.yml` with `gameplay.enderman-picks-up-blocks`, `gameplay.creeper-destroys-blocks`, and `gameplay.farmland-trampling`.
