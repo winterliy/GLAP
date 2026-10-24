@@ -12,13 +12,15 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | 기능 | 설명 |
 |---|---|
 | GLAP1 브랜드 | `/version`과 콘솔에 서버 이름이 GLAP1으로 표시돼요. |
-| `glap.yml` | 게임 규칙을 설정 파일로 켜고 꺼요. 서버 폴더에 자동으로 만들어져요. |
-| `/glap` | `/glap version`으로 업데이트를 확인하고, `/glap reload`로 `glap.yml`을 다시 불러와요. OP만 쓸 수 있어요. |
-| 업데이트 알림 | 서버가 켜질 때 GitHub 릴리스를 확인해서 새 버전이 있으면 알려줘요. |
+| `glap.yml` | 게임 규칙, 업데이트 확인, Paper 내장 Metrics를 설정해요. 서버 폴더에 자동으로 만들어져요. |
+| `/glap` | `/glap version`으로 버전을 확인하고, `/glap status`로 설정 상태를 보고, `/glap reload`로 설정을 다시 읽어요. OP만 쓸 수 있어요. |
+| 업데이트 알림 | 기본값은 서버 시작 시 GitHub 릴리스를 확인해요. `updates.enabled: false`로 자동·수동 원격 확인을 끌 수 있어요. |
 
 ### `glap.yml`
 
 ```yaml
+config-version: 1
+
 gameplay:
   # false면 엔더맨이 블록을 집어 가지 않아요.
   enderman-picks-up-blocks: true
@@ -26,7 +28,25 @@ gameplay:
   creeper-destroys-blocks: true
   # false면 플레이어와 몹이 밭을 밟아도 흙으로 변하지 않아요.
   farmland-trampling: true
+  # true면 엔드에서도 물을 설치할 수 있어요.
+  allow-water-placement-in-end: false
+  # true면 디스펜서가 모루를 블록으로 설치해요.
+  dispensers-place-anvils: false
+  # true면 활에 무한과 수선을 함께 부여할 수 있어요.
+  allow-infinity-and-mending-together: false
+
+updates:
+  # false면 시작 시 자동 확인과 /glap version의 원격 확인을 끄고 로컬 버전만 표시해요.
+  enabled: true
+
+privacy:
+  # Paper 내장 Metrics만 제어해요. 변경 사항은 재시작 후 적용돼요.
+  paper-metrics-enabled: true
 ```
+
+설정 파일은 `config-version`에 따라 관리돼요. 이전 버전 파일을 갱신할 때는 기존 파일을 `.bak`으로 백업하고, 잘못된 YAML이나 지원하지 않는 미래 버전은 현재 실행 설정에 적용하지 않아요. 새 게임플레이 옵션은 모두 기본값에서 Paper/바닐라 동작을 유지해요.
+
+`privacy.paper-metrics-enabled`는 Paper의 기본 Metrics만 제어하며 Spark, JMX, 운영체제 통계, 플러그인 자체 Metrics는 제어하지 않아요. `/glap status`에서 설정값과 현재 실행 중인 상태를 볼 수 있고, 재시작이 필요한 변경도 알려줘요. GLAP1은 Paper 플러그인 호환성을 유지하며 Folia 지원이나 지역별 병렬 틱을 제공하지 않아요.
 
 ## 서버 실행
 
