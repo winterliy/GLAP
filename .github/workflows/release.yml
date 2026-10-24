@@ -1,0 +1,45 @@
+name: Release GLAP
+
+on:
+  push:
+    tags:
+      - 'v2.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: zulu
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Verify release version
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="$(./gradlew -q printGlapVersion)"
+          test "v$VERSION" = "$TAG_NAME"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Build server jar
+        run: ./gradlew applyPatches createPaperclipJar --stacktrace
+
+      - name: Package release asset
+        run: cp paper-server/build/libs/paper-paperclip-*.jar "glap-${VERSION}.jar"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: gh release create "$TAG_NAME" "glap-${VERSION}.jar" --title "GLAP ${VERSION}" --notes "GLAP 2.0.0 is based on Paper 26.3, rebranded as GLAP1."

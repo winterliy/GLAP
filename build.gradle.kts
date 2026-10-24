@@ -94,3 +94,9 @@ tasks.register("printPaperVersion") {
         println(paperVersion.get())
     }
 }
+
+tasks.register("printGlapVersion") {
+    doLast {
+        println(providers.gradleProperty("glapVersion").get().trim())
+    }
+}

@@ -176,6 +176,7 @@ tasks.jar {
             "Main-Class" to "org.bukkit.craftbukkit.Main",
             "Implementation-Title" to "GLAP1",
             "Implementation-Version" to implementationVersion,
+            "GLAP-Version" to project.version,
             "Implementation-Vendor" to date,
             "Specification-Title" to "GLAP1",
             "Specification-Version" to project.version,
