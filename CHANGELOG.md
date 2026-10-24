@@ -11,7 +11,7 @@
 
 ### Changed
 - Restructure the project as a Paper fork like Purpur: pin Paper with `paperCommit` and keep only GLAP patches in `glap-api` and `glap-server`.
-- Write GLAP-specific server code in Kotlin under `glap-server/src/main/kotlin`.
+- Keep Paper-facing GLAP classes in Java under `glap-server/src/main/java` and GLAP-only logic in Kotlin under `glap-server/src/main/kotlin`.
 - Rewrite the README for GLAP1.
 
 ## [1.0.0] - 2026-10-24

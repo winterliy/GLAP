@@ -58,13 +58,16 @@ zip으로 받으면 빌드되지 않아요. 반드시 `git clone`으로 받아�
 gradle.properties                 paperCommit(바탕 Paper 커밋), glapVersion(GLAP 버전)
 glap-api/                         API 쪽 패치
 glap-server/
-├── src/main/kotlin/dev/glap/     GLAP 전용 코드 (Kotlin)
+├── src/main/java/dev/glap/       Paper와 맞닿는 GLAP 코드 (Java)
+├── src/main/kotlin/dev/glap/     GLAP 내부 로직 (Kotlin)
 ├── paper-patches/                Paper 코드에 얹는 패치 (Java)
 └── minecraft-patches/            마인크래프트 코드에 얹는 패치 (Java)
 paper-api/, paper-server/         applyAllPatches가 생성 (Git에 올라가지 않음)
 ```
 
-- 새 기능은 되도록 `src/main/kotlin`에 Kotlin으로 쓰고, 패치는 그 코드를 부르는 한두 줄만 넣어요. 패치가 작을수록 Paper 업데이트가 쉬워요.
+- Paper·마인크래프트 코드가 직접 부르는 클래스(`GlapConfig`, `GlapCommand`, `GlapVersionFetcher`)는 `src/main/java`에 Java로 써요.
+- Paper와 상관없는 GLAP 내부 로직(예: `GlapReleases` GitHub 릴리스 확인)은 `src/main/kotlin`에 Kotlin으로 써요.
+- 패치에는 위 클래스를 부르는 한두 줄만 넣어요. 패치가 작을수록 Paper 업데이트가 쉬워요.
 - Paper·마인크래프트 코드에 넣는 패치는 원본이 Java라 Java로 써요. 바꾼 줄에는 `// GLAP` 주석을 달아요.
 
 ### 패치 수정하기
