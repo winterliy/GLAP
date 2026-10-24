@@ -120,8 +120,8 @@ Minecraft 버전이 바뀌면(예: 26.4) 새 브랜치(`26.4`)를 만들어요. 
 2. `v<버전>` 태그를 push하면 GitHub Actions가 jar를 빌드해 릴리스를 만들어요.
 
    ```sh
-   git tag -a v1.1.3 -m "GLAP1 1.1.3"
-   git push origin v1.1.3
+   git tag -a v3.0.0 -m "GLAP1 3.0.0"
+   git push origin v3.0.0
    ```
 
 ## 라이선스
