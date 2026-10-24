@@ -118,7 +118,8 @@ tasks.register("printMinecraftVersion") {
 }
 
 tasks.register("printGlapVersion") {
+    val glapVersion = providers.gradleProperty("glapVersion").map { it.trim() }
     doLast {
-        println(providers.gradleProperty("glapVersion").get().trim())
+        println(glapVersion.get())
     }
 }

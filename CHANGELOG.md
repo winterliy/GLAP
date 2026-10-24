@@ -1,6 +1,16 @@
 # Changelog
 
+## [1.1.2] - 2026-10-24
+
+### Fixed
+- Fix the release workflow: make `printGlapVersion` work with the Gradle configuration cache.
+
+### Changed
+- Log a warning on startup when the update checker cannot be loaded, so it is not confused with a failed GitHub lookup.
+
 ## [1.1.1] - 2026-10-24
+
+The `v1.1.1` tag was pushed, but its release build failed, so no jar was published. Use 1.1.2.
 
 ### Fixed
 - Fix the CI build: track `gradle-wrapper.jar` and drop the `.gitkeep` that paperweight read as a patch.

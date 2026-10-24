@@ -20,7 +20,10 @@ public final class GlapVersionFetcher implements VersionFetcher {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final UpdateChecker CHECKER = ServiceLoader.load(UpdateChecker.class, GlapVersionFetcher.class.getClassLoader())
         .findFirst()
-        .orElse(current -> new UpdateChecker.Status.Unknown());
+        .orElseGet(() -> {
+            LOGGER.warn("GLAP1 업데이트 확인 기능(UpdateChecker)을 찾지 못했어요. jar가 잘못 빌드됐을 수 있어요.");
+            return current -> new UpdateChecker.Status.Unknown();
+        });
 
     @Override
     public long getCacheTime() {
