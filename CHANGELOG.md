@@ -1,10 +1,13 @@
 # Changelog
 
-## Unreleased
+## [3.0.0] - 2026-10-24
 
 - Add opt-in End water placement, dispenser anvil placement, and Infinity plus Mending compatibility settings.
 - Add atomic configuration reload, schema versioning with migration backups, `/glap status`, update-check opt-out, and Paper Metrics opt-out.
 - Marshal `/glap version` responses back to the Paper server thread.
+
+### Changed
+- Mark the GLAP1 gameplay, configuration, and server-control upgrade as the 3.0.0 major release.
 
 ## [1.1.3] - 2026-10-24
 
