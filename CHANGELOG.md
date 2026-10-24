@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.3] - 2026-10-24
+
+### Changed
+- Maintenance release with no server changes.
+
 ## [1.1.2] - 2026-10-24
 
 ### Fixed
