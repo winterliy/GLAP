@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/item/enchantment/Enchantment.java
++++ b/net/minecraft/world/item/enchantment/Enchantment.java
+@@ -164,6 +_,11 @@
+     }
+ 
+     public static boolean areCompatible(final Holder<Enchantment> enchantment, final Holder<Enchantment> other) {
++        if (dev.glap.GlapConfig.allowInfinityAndMendingTogether()
++            && ((enchantment.is(Enchantments.INFINITY) && other.is(Enchantments.MENDING))
++                || (enchantment.is(Enchantments.MENDING) && other.is(Enchantments.INFINITY)))) { // GLAP - allow Infinity and Mending together
++            return true;
++        }
+         return !enchantment.equals(other) && !enchantment.value().exclusiveSet.contains(other) && !other.value().exclusiveSet.contains(enchantment);
+     }
+ 

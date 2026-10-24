@@ -5,7 +5,7 @@
          super.fallOn(level, state, pos, entity, fallDistance); // CraftBukkit - moved here as game rules / events shouldn't affect fall damage.
          if (level instanceof ServerLevel serverLevel && level.getRandom().nextFloat() < fallDistance - 0.5 && entity instanceof LivingEntity) {
 -            boolean canTrample = entity instanceof Player player
-+            boolean canTrample = dev.glap.GlapConfig.farmlandTrampling && (entity instanceof Player player
++            boolean canTrample = dev.glap.GlapConfig.farmlandTrampling() && (entity instanceof Player player
                  ? !level.getServer().isUnderSpawnProtection(serverLevel, pos, player)
 -                : serverLevel.getGameRules().get(GameRules.MOB_GRIEFING);
 +                : serverLevel.getGameRules().get(GameRules.MOB_GRIEFING)); // GLAP - glap.yml

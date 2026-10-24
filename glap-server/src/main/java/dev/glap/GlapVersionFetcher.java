@@ -32,6 +32,10 @@ public final class GlapVersionFetcher implements VersionFetcher {
 
     @Override
     public Component getVersionMessage() {
+        if (!GlapConfig.updatesEnabled()) {
+            return text("GLAP1 " + CURRENT_VERSION + " — 원격 업데이트 확인이 꺼져 있어요. ", NamedTextColor.GRAY)
+                .append(text(RELEASES_PAGE, NamedTextColor.AQUA).clickEvent(ClickEvent.openUrl(RELEASES_PAGE)));
+        }
         return switch (CHECKER.check(CURRENT_VERSION)) {
             case UpdateChecker.Status.Outdated(final String latest) ->
                 text("GLAP1 " + CURRENT_VERSION + " — 새 버전 " + latest + "이 있어요. ", NamedTextColor.YELLOW)
@@ -43,6 +47,10 @@ public final class GlapVersionFetcher implements VersionFetcher {
 
     /** Called once on startup in place of Paper's update check. */
     public static void startupCheck() {
+        if (!GlapConfig.updatesEnabled()) {
+            LOGGER.info("GLAP1 원격 업데이트 확인이 설정으로 꺼져 있어요 (지금 {}).", CURRENT_VERSION);
+            return;
+        }
         switch (CHECKER.check(CURRENT_VERSION)) {
             case UpdateChecker.Status.Outdated(final String latest) -> {
                 LOGGER.warn("*** GLAP1 새 버전 {}이 나왔어요 (지금 {}). ***", latest, CURRENT_VERSION);

@@ -1,0 +1,94 @@
+--- a/net/minecraft/core/dispenser/DispenseItemBehavior.java
++++ b/net/minecraft/core/dispenser/DispenseItemBehavior.java
+@@ -13,6 +_,8 @@
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.tags.FluidTags;
+ import net.minecraft.util.RandomSource;
++import net.minecraft.world.InteractionHand;
++import net.minecraft.world.InteractionResult;
+ import net.minecraft.world.entity.EntitySelector;
+ import net.minecraft.world.entity.EntitySpawnReason;
+ import net.minecraft.world.entity.EntityType;
+@@ -25,6 +_,7 @@
+ import net.minecraft.world.entity.decoration.ArmorStand;
+ import net.minecraft.world.entity.item.PrimedTnt;
+ import net.minecraft.world.item.BoneMealItem;
++import net.minecraft.world.item.BlockItem;
+ import net.minecraft.world.item.DispensibleContainerItem;
+ import net.minecraft.world.item.HoneycombItem;
+ import net.minecraft.world.item.Item;
+@@ -32,6 +_,8 @@
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.item.alchemy.PotionContents;
+ import net.minecraft.world.item.alchemy.Potions;
++import net.minecraft.world.item.context.BlockPlaceContext;
++import net.minecraft.world.item.context.UseOnContext;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.LevelAccessor;
+ import net.minecraft.world.level.block.BeehiveBlock;
+@@ -50,6 +_,8 @@
+ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.level.gamerules.GameRules;
+ import net.minecraft.world.phys.AABB;
++import net.minecraft.world.phys.BlockHitResult;
++import net.minecraft.world.phys.Vec3;
+ import org.slf4j.Logger;
+ 
+ public interface DispenseItemBehavior {
+@@ -118,6 +_,56 @@
+                 }
+             }
+         );
++        DispenserBlock.registerBehavior(Items.ANVIL, new OptionalDispenseItemBehavior() {
++            @Override
++            protected ItemStack execute(final BlockSource source, final ItemStack dispensed) {
++                if (!dev.glap.GlapConfig.dispensersPlaceAnvils()) { // GLAP - configurable dispenser anvils
++                    this.setSuccess(true);
++                    return super.execute(source, dispensed);
++                }
++
++                Direction direction = source.state().getValue(DispenserBlock.FACING);
++                BlockPos target = source.pos().relative(direction);
++                ServerLevel level = source.level();
++                ItemStack oneAnvil = dispensed.copyWithCount(1);
++                org.bukkit.block.Block bukkitBlock = org.bukkit.craftbukkit.block.CraftBlock.at(level, source.pos());
++                org.bukkit.inventory.ItemStack bukkitItem = org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitMirror(oneAnvil);
++                org.bukkit.event.block.BlockDispenseEvent event = new org.bukkit.event.block.BlockDispenseEvent(
++                    bukkitBlock, bukkitItem.clone(), new org.bukkit.util.Vector(target.getX() + 0.5D, target.getY() + 0.5D, target.getZ() + 0.5D)
++                );
++                level.getCraftServer().getPluginManager().callEvent(event);
++                if (event.isCancelled()) {
++                    this.setSuccess(false);
++                    return dispensed;
++                }
++
++                if (!event.getItem().equals(bukkitItem)) {
++                    ItemStack eventStack = org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(event.getItem());
++                    DispenseItemBehavior behavior = DispenserBlock.getDispenseBehavior(source, eventStack);
++                    if (behavior != DispenseItemBehavior.NOOP && behavior != this) {
++                        behavior.dispense(source, eventStack);
++                        this.setSuccess(true);
++                    } else {
++                        this.setSuccess(false);
++                    }
++                    return dispensed;
++                }
++
++                BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(target), direction, target, false);
++                BlockPlaceContext context = new BlockPlaceContext(new UseOnContext(level, null, InteractionHand.MAIN_HAND, oneAnvil, hit)) {
++                    @Override
++                    public Direction getHorizontalDirection() {
++                        return direction.getAxis() == Direction.Axis.Y ? Direction.NORTH : direction.getClockWise();
++                    }
++                };
++                InteractionResult result = ((BlockItem) oneAnvil.getItem()).place(context);
++                this.setSuccess(result.consumesAction());
++                if (this.isSuccess()) {
++                    dispensed.shrink(1);
++                }
++                return dispensed;
++            }
++        });
+         DispenserBlock.registerBehavior(
+             Items.CHEST,
+             new OptionalDispenseItemBehavior() {
