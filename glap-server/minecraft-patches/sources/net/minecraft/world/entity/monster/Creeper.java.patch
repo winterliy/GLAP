@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/monster/Creeper.java
++++ b/net/minecraft/world/entity/monster/Creeper.java
+@@ -250,7 +_,7 @@
+             if (!event.isCancelled()) {
+             // CraftBukkit end
+             this.dead = true;
+-            level.explode(this, this.getX(), this.getY(), this.getZ(), event.getRadius(), event.getFire(), Level.ExplosionInteraction.MOB); // CraftBukkit // Paper - fix DamageSource API (revert to vanilla, no, just no, don't change this)
++            level.explode(this, this.getX(), this.getY(), this.getZ(), event.getRadius(), event.getFire(), dev.glap.GlapConfig.creeperDestroysBlocks ? Level.ExplosionInteraction.MOB : Level.ExplosionInteraction.NONE); // CraftBukkit // GLAP - glap.yml // Paper - fix DamageSource API (revert to vanilla, no, just no, don't change this)
+             this.spawnLingeringCloud();
+             this.triggerOnDeathMobEffects(level, Entity.RemovalReason.KILLED);
+             this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.EXPLODE); // CraftBukkit - add Bukkit remove cause

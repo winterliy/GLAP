@@ -1,10 +1,52 @@
 import io.papermc.paperweight.checkstyle.PaperCheckstyleExt
-import io.papermc.paperweight.checkstyle.tasks.PaperCheckstyleTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id("io.papermc.paperweight.core") version "2.0.0-beta.24" apply false
+    java // TODO java launcher tasks
+    id("io.papermc.paperweight.patcher") version "2.0.0-beta.24"
+    kotlin("jvm") version "2.4.20" apply false
+}
+
+val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
+
+paperweight {
+    upstreams.paper {
+        ref = providers.gradleProperty("paperCommit")
+
+        patchFile {
+            path = "paper-server/build.gradle.kts"
+            outputFile = file("glap-server/build.gradle.kts")
+            patchFile = file("glap-server/build.gradle.kts.patch")
+        }
+        patchFile {
+            path = "paper-api/build.gradle.kts"
+            outputFile = file("glap-api/build.gradle.kts")
+            patchFile = file("glap-api/build.gradle.kts.patch")
+        }
+        patchFile {
+            path = "paper-checkstyle/build.gradle.kts"
+            outputFile = file("glap-checkstyle/build.gradle.kts")
+            patchFile = file("glap-checkstyle/build.gradle.kts.patch")
+        }
+        patchDir("paperApi") {
+            upstreamPath = "paper-api"
+            excludes = setOf("build.gradle.kts")
+            patchesDir = file("glap-api/paper-patches")
+            outputDir = file("paper-api")
+        }
+        patchDir("paperCheckstyle") {
+            upstreamPath = "paper-checkstyle"
+            excludes = setOf("build.gradle.kts")
+            patchesDir = file("glap-checkstyle/paper-patches")
+            outputDir = file("paper-checkstyle")
+        }
+        patchDir("paperCheckstyleConfig") {
+            upstreamPath = ".checkstyle"
+            patchesDir = file("glap-checkstyle/config-patches")
+            outputDir = file(".checkstyle")
+        }
+    }
 }
 
 subprojects {
@@ -19,7 +61,7 @@ subprojects {
         }
     }
 
-    val tempDisabled = setOf("paper-server", "paper-generator", "test-plugin")
+    val tempDisabled = setOf("glap-server", "paper-server", "test-plugin")
 
     if (name !in tempDisabled) {
         apply { plugin("io.papermc.paperweight.paper-checkstyle") }
@@ -38,27 +80,23 @@ subprojects {
         }*/
 
         dependencies {
-            "checkstyle"(project(":paper-checkstyle"))
+            "checkstyle"(project(":glap-checkstyle"))
         }
     }
-}
 
-val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
-
-subprojects {
-    tasks.withType<JavaCompile>().configureEach {
+    tasks.withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
         options.release = 25
         options.isFork = true
         options.compilerArgs.addAll(listOf("-Xlint:-deprecation", "-Xlint:-removal"))
     }
-    tasks.withType<Javadoc>().configureEach {
+    tasks.withType<Javadoc> {
         options.encoding = Charsets.UTF_8.name()
     }
-    tasks.withType<ProcessResources>().configureEach {
+    tasks.withType<ProcessResources> {
         filteringCharset = Charsets.UTF_8.name()
     }
-    tasks.withType<Test>().configureEach {
+    tasks.withType<Test> {
         testLogging {
             showStackTraces = true
             exceptionFormat = TestExceptionFormat.FULL
@@ -71,26 +109,16 @@ subprojects {
         maven(paperMavenPublicUrl)
     }
 
-    extensions.configure<PublishingExtension> {
-        repositories {
-            maven("https://artifactory.papermc.io/artifactory/releases/") {
-                name = "paperReleases"
-                credentials(PasswordCredentials::class)
-            }
-        }
-    }
 }
 
 tasks.register("printMinecraftVersion") {
-    val mcVersion = providers.gradleProperty("mcVersion")
     doLast {
-        println(mcVersion.get().trim())
+        println(providers.gradleProperty("mcVersion").get().trim())
     }
 }
 
-tasks.register("printPaperVersion") {
-    val paperVersion = provider { project.version }
+tasks.register("printGlapVersion") {
     doLast {
-        println(paperVersion.get())
+        println(providers.gradleProperty("glapVersion").get().trim())
     }
 }

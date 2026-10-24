@@ -1,0 +1,49 @@
+name: Paper update check
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compare paperCommit with Paper
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prop() { grep -E "^$1 *=" gradle.properties | cut -d= -f2 | tr -d ' '; }
+          PINNED="$(prop paperCommit)"
+          MC="$(prop mcVersion)"
+          PAPER_MC="$(gh api repos/PaperMC/Paper/contents/gradle.properties --jq .content | base64 -d | grep -E '^mcVersion *=' | cut -d= -f2 | tr -d ' ')"
+          if [ "$PAPER_MC" = "$MC" ]; then BRANCH=main; else BRANCH="ver/$MC"; fi
+          LATEST="$(gh api "repos/PaperMC/Paper/commits/$BRANCH" --jq .sha)"
+          if [ "$LATEST" = "$PINNED" ]; then
+            echo "Paper $BRANCH has no new commits."
+            exit 0
+          fi
+          AHEAD="$(gh api "repos/PaperMC/Paper/compare/$PINNED...$LATEST" --jq .ahead_by)"
+          TITLE="Paper 업데이트: $MC ($BRANCH)"
+          if [ -n "$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[].number')" ]; then
+            echo "Issue already open."
+            exit 0
+          fi
+          {
+            echo "Paper \`$BRANCH\`에 새 커밋이 ${AHEAD}개 있어요."
+            echo
+            echo "- 지금 고정된 커밋: \`$PINNED\`"
+            echo "- Paper 최신 커밋: \`$LATEST\`"
+            echo "- 비교: https://github.com/PaperMC/Paper/compare/$PINNED...$LATEST"
+            if [ "$PAPER_MC" != "$MC" ]; then
+              echo
+              echo "Paper \`main\`은 Minecraft $PAPER_MC 로 넘어갔어요. 새 버전 브랜치가 필요할 수 있어요."
+            fi
+            echo
+            echo "업데이트하려면 \`gradle.properties\`의 \`paperCommit\`을 바꾸고 \`./gradlew applyAllPatches\`로 패치를 다시 적용하세요."
+          } > body.md
+          gh issue create --title "$TITLE" --body-file body.md

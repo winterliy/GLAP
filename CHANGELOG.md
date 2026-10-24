@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.0] - 2026-10-24
+
+### Added
+- Add `glap.yml` with `gameplay.enderman-picks-up-blocks`, `gameplay.creeper-destroys-blocks`, and `gameplay.farmland-trampling`.
+- Add `/glap version` to check for updates and `/glap reload` to reload `glap.yml`.
+- Check the latest GLAP release on startup and in `/version` instead of Paper's update check.
+- Build every push and publish a release for every `v*` tag with GitHub Actions.
+- Open an issue every Monday when Paper has new commits.
+
+### Changed
+- Restructure the project as a Paper fork like Purpur: pin Paper with `paperCommit` and keep only GLAP patches in `glap-api` and `glap-server`.
+- Write GLAP-specific server code in Kotlin under `glap-server/src/main/kotlin`.
+- Rewrite the README for GLAP1.
+
 ## [1.0.0] - 2026-10-24
 
 ### Added

@@ -1,0 +1,10 @@
+--- a/net/minecraft/world/entity/monster/Enderman.java
++++ b/net/minecraft/world/entity/monster/Enderman.java
+@@ -636,6 +_,7 @@
+         @Override
+         public boolean canUse() {
+             return this.enderman.getCarriedBlock() == null
++                && dev.glap.GlapConfig.endermanPicksUpBlocks // GLAP - glap.yml
+                 && getServerLevel(this.enderman).getGameRules().get(GameRules.MOB_GRIEFING)
+                 && this.enderman.getRandom().nextInt(reducedTickDelay(20)) == 0;
+         }

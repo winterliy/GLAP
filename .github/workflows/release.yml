@@ -1,0 +1,41 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Configure Git
+        run: git config --global user.email "no-reply@github.com" && git config --global user.name "Github Actions"
+      - name: Check version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          GRADLE_VERSION="$(./gradlew -q printGlapVersion)"
+          if [ "$VERSION" != "$GRADLE_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match glapVersion $GRADLE_VERSION in gradle.properties"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Apply Patches
+        run: ./gradlew applyAllPatches --stacktrace
+      - name: Build
+        run: ./gradlew createPaperclipJar --stacktrace
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp glap-server/build/libs/*-paperclip-*.jar "glap-$VERSION.jar"
+          awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {found=1; next} found && /^## \[/ {exit} found' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" "glap-$VERSION.jar" --title "GLAP1 $VERSION" --notes-file notes.md

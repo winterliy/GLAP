@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/level/block/FarmlandBlock.java
++++ b/net/minecraft/world/level/block/FarmlandBlock.java
+@@ -106,9 +_,9 @@
+     public void fallOn(final Level level, final BlockState state, final BlockPos pos, final Entity entity, final double fallDistance) {
+         super.fallOn(level, state, pos, entity, fallDistance); // CraftBukkit - moved here as game rules / events shouldn't affect fall damage.
+         if (level instanceof ServerLevel serverLevel && level.getRandom().nextFloat() < fallDistance - 0.5 && entity instanceof LivingEntity) {
+-            boolean canTrample = entity instanceof Player player
++            boolean canTrample = dev.glap.GlapConfig.farmlandTrampling && (entity instanceof Player player
+                 ? !level.getServer().isUnderSpawnProtection(serverLevel, pos, player)
+-                : serverLevel.getGameRules().get(GameRules.MOB_GRIEFING);
++                : serverLevel.getGameRules().get(GameRules.MOB_GRIEFING)); // GLAP - glap.yml
+             if (canTrample && entity.getBbWidth() * entity.getBbWidth() * entity.getBbHeight() > 0.512F) {
+                 // CraftBukkit start - Interact soil
+                 org.bukkit.event.Cancellable cancellable;
