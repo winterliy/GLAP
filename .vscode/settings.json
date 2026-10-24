@@ -1,0 +1,7 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.exclusions": [
+        "**/paper-api/**"
+    ],
+    "java.gradle.buildServer.enabled": "on"
+}
