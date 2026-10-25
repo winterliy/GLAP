@@ -20,7 +20,11 @@ jobs:
           java-version: 25
       - uses: gradle/actions/setup-gradle@v6
       - name: Configure Git
-        run: git config --global user.email "no-reply@github.com" && git config --global user.name "Github Actions"
+        run: |
+          git config --global user.email "no-reply@github.com"
+          git config --global user.name "Github Actions"
+          git config --global gc.auto 0
+          git config --global maintenance.auto false
       - name: Apply Patches
         run: ./gradlew applyAllPatches --stacktrace
       - name: Build
