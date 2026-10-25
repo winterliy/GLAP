@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.1] - 2026-10-25
+
+### Fixed
+- Disable automatic Git garbage collection and maintenance in CI to prevent Paperweight from losing loose Git objects while copying Paper sources.
+
+### Changed
+- Prepare the 3.0.1 patch release.
+
 ## [3.0.0] - 2026-10-24
 
 - Add opt-in End water placement, dispenser anvil placement, and Infinity plus Mending compatibility settings.
