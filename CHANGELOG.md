@@ -5,7 +5,7 @@
 ### Added
 - Add a typed command-tree DSL and route `/glap` through it while keeping the Paper Java bootstrap boundary.
 - Add GLAP plugin APIs for main-thread handoff and client-only fake entity spawn, movement, metadata, equipment, and removal.
-- Integrate Kode runtime source and versioning into GLAP; build and release `kode.jar` beside the server jar.
+- Integrate Kode runtime source into GLAP, embed it in the server jar, and install or update it automatically before plugin discovery.
 
 ### Changed
 - Advance the Paper 26.3 baseline by 26 commits to `5050b0f33` and adapt the Checkstyle patch to upstream 14.3.0.

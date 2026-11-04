@@ -1,0 +1,17 @@
+--- a/src/main/java/io/papermc/paper/plugin/PluginInitializerManager.java
++++ b/src/main/java/io/papermc/paper/plugin/PluginInitializerManager.java
+@@ -100,5 +100,13 @@
+         // We have to load the bukkit configuration inorder to get the update folder location.
+         io.papermc.paper.plugin.PluginInitializerManager pluginSystem = io.papermc.paper.plugin.PluginInitializerManager.init(optionSet);
+-
++
++        // GLAP start - install the bundled Kotlin runtime provider before scanning plugins
++        try {
++            dev.glap.internal.BundledKodeInstaller.installIfMissing(pluginSystem.pluginDirectoryPath(), LOGGER);
++        } catch (IOException exception) {
++            LOGGER.error("Could not install the bundled Kode plugin; dependent Kotlin plugins may not load", exception);
++        }
++        // GLAP end - install the bundled Kotlin runtime provider before scanning plugins
++
+         // Register the default plugin directory
+         io.papermc.paper.plugin.util.EntrypointUtil.registerProvidersFromSource(io.papermc.paper.plugin.provider.source.DirectoryProviderSource.INSTANCE, pluginSystem.pluginDirectoryPath());

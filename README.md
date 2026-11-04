@@ -15,7 +15,7 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | `glap.yml` | 게임 규칙, 업데이트 확인, Paper 내장 Metrics를 설정해요. 서버 폴더에 자동으로 만들어져요. |
 | `/glap` | `/glap version`으로 버전을 확인하고, `/glap status`로 설정 상태를 보고, `/glap reload`로 설정을 다시 읽어요. OP만 쓸 수 있어요. |
 | 업데이트 알림 | 기본값은 서버 시작 시 GitHub 릴리스를 확인해요. `updates.enabled: false`로 자동·수동 원격 확인을 끌 수 있어요. |
-| Kode 런타임 | GLAP 빌드가 `kode.jar`를 함께 만들고 GitHub 릴리스에 서버 jar와 함께 올려요. Kotlin 플러그인은 `depend: [Kode]`로 공용 Kotlin 런타임을 사용해요. |
+| Kode 런타임 | Kode가 GLAP 서버 jar에 내장되고, 시작할 때 `plugins/Kode.jar`로 자동 설치돼요. Kotlin 플러그인은 `depend: [Kode]`로 공용 런타임을 사용해요. |
 
 ### `glap.yml`
 
@@ -69,9 +69,8 @@ GlapApi.get().serverThread().execute(plugin, () -> {
 
 ## 서버 실행
 
-1. [릴리스](https://github.com/winterliy/GLAP/releases)에서 `glap-<버전>.jar`와 `kode.jar`를 받아요.
-2. Kotlin 플러그인을 사용하는 경우 `kode.jar`를 서버 폴더의 `plugins/`에 넣어요.
-3. 서버를 실행해요.
+1. [릴리스](https://github.com/winterliy/GLAP/releases)에서 `glap-<버전>.jar`를 받아 서버 폴더에 넣어요.
+2. GLAP 서버 jar를 실행해요. Kode는 `plugins/`에 자동 설치돼 Kotlin 플러그인이 시작할 때 사용할 수 있어요.
 
    ```sh
    java -Xms3G -Xmx3G -jar glap-<버전>.jar --nogui
@@ -85,10 +84,10 @@ GlapApi.get().serverThread().execute(plugin, () -> {
 git clone https://github.com/winterliy/GLAP.git
 cd GLAP
 ./gradlew applyAllPatches      # Paper 코드를 받아 GLAP 패치를 적용
-./gradlew createPaperclipJar :kode:shadowJar   # 서버 jar와 kode/build/libs/kode.jar 생성
+./gradlew createPaperclipJar   # Kode를 내장한 서버 jar 생성
 ```
 
-Kode는 Paper 플러그인 클래스 로더에서 공용 Kotlin 런타임을 제공하기 위해 별도 jar로 실행돼요. 소스, 버전, 빌드, 릴리스는 GLAP 저장소에서 함께 관리해요.
+Kode 플러그인 파일은 GLAP 서버 jar 안에 내장돼요. 서버 시작 때 기존 `plugins/Kode.jar`가 없으면 설치하고, GLAP이 설치한 파일은 서버 업그레이드 때 자동 갱신해요. 사용자가 별도로 설치한 Kode 파일이나 GLAP 설치 후 직접 바꾼 파일은 덮어쓰지 않아요. Kode의 소스, 버전, 빌드는 GLAP 저장소에서 관리해요.
 
 zip으로 받으면 빌드되지 않아요. 반드시 `git clone`으로 받아주세요.
 
@@ -104,7 +103,7 @@ glap-server/
 ├── src/main/kotlin/dev/glap/     GLAP 내부 로직 (Kotlin)
 ├── paper-patches/                Paper 코드에 얹는 패치 (Java)
 └── minecraft-patches/            마인크래프트 코드에 얹는 패치 (Java)
-kode/                             GLAP이 관리하는 Kotlin 런타임 제공 플러그인
+kode/                             GLAP 서버에 내장할 Kotlin 런타임 제공 플러그인 소스
 paper-api/, paper-server/         applyAllPatches가 생성 (Git에 올라가지 않음)
 ```
 

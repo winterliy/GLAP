@@ -6,7 +6,7 @@
 2. [x] Implement a compact typed command DSL and migrate `/glap`, preserving permissions and completions.
 3. [x] Define the main-thread boundary and add client-only entity spawn, movement, metadata, equipment, and removal APIs.
 4. [x] Separate GLAP API interfaces from the single-version server/NMS implementation without importing unused multi-version/reflection machinery.
-5. [x] Make GLAP the sole source of truth for Kode and publish both artifacts in build and release workflows. Freeze the standalone Kode repository.
+5. [x] Make GLAP the sole source of truth for Kode; embed the provider jar in the server jar and extract/update it before Paper plugin discovery. Freeze the standalone Kode repository.
 6. [x] Read Paperweight, paperweight-examples, PaperTestServer, Mache, DataConverter, and patch-roulette sources.
 7. Compile and build both jars; inspect outputs and final diffs. No test suite or runtime server session was run.
 

@@ -91,7 +91,17 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
-@@ -259,7 +283,7 @@
+@@ -225,3 +249,9 @@
+ tasks.jar {
+     val archiveOperations = services.archiveOperations
++    val kodeProject = project(":kode")
++    val kodeShadowJar = kodeProject.tasks.named("shadowJar")
++    dependsOn(kodeShadowJar)
++    from(kodeProject.layout.buildDirectory.file("libs/kode.jar")) {
++        into("META-INF/glap")
++    }
+     from(alsoShade.elements.map {
+@@ -259,7 +289,7 @@
      )
  }
  
@@ -100,7 +110,7 @@
  idea {
      module {
          generatedSourceDirs.add(generatedDir.toFile())
-@@ -341,7 +365,7 @@
+@@ -341,7 +371,7 @@
      mainClass.set(null as String?)
  }
  
@@ -109,7 +119,7 @@
      project("paper")
      versionFamily(paperweight.minecraftVersion.map { it.split(".", "-").takeWhile { part -> part.toIntOrNull() != null }.take(2).joinToString(".") })
      version(paperweight.minecraftVersion)
-@@ -356,4 +380,4 @@
+@@ -356,4 +386,4 @@
              }
          }
      }
