@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [3.0.2] - 2026-11-05
 
 ### Added
 - Add a typed command-tree DSL and route `/glap` through it while keeping the Paper Java bootstrap boundary.
@@ -10,6 +10,8 @@
 ### Changed
 - Advance the Paper 26.3 baseline by 26 commits to `5050b0f33` and adapt the Checkstyle patch to upstream 14.3.0.
 - Keep live Bukkit and packet operations on the single server main thread; reject unsupported fake-player and cross-world operations explicitly.
+
+## Unreleased
 
 ## [3.0.1] - 2026-10-25
 
