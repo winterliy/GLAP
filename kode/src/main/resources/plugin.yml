@@ -1,0 +1,9 @@
+name: Kode
+version: '1.0.0'
+main: dev.ledge.kode.KodePlugin
+api-version: '26.3'
+load: STARTUP
+provides:
+  - Kotlin
+description: Shared Kotlin runtime for GLAP1 Paper plugins.
+authors: [Ledge]

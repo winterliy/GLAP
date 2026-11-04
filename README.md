@@ -5,7 +5,7 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 
 - Minecraft: **26.3**
 - Java: **25 이상**
-- 바탕: Paper `1b9bf5c8e` (`gradle.properties`의 `paperCommit`)
+- 바탕: Paper `5050b0f33` (`gradle.properties`의 `paperCommit`)
 
 ## 기능
 
@@ -15,6 +15,7 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | `glap.yml` | 게임 규칙, 업데이트 확인, Paper 내장 Metrics를 설정해요. 서버 폴더에 자동으로 만들어져요. |
 | `/glap` | `/glap version`으로 버전을 확인하고, `/glap status`로 설정 상태를 보고, `/glap reload`로 설정을 다시 읽어요. OP만 쓸 수 있어요. |
 | 업데이트 알림 | 기본값은 서버 시작 시 GitHub 릴리스를 확인해요. `updates.enabled: false`로 자동·수동 원격 확인을 끌 수 있어요. |
+| Kode 런타임 | `:kode:shadowJar`로 별도 `kode.jar`를 만들어요. Kotlin 플러그인은 `depend: [Kode]`로 선언해 공용 Kotlin 런타임을 사용해요. |
 
 ### `glap.yml`
 
@@ -48,10 +49,29 @@ privacy:
 
 `privacy.paper-metrics-enabled`는 Paper의 기본 Metrics만 제어하며 Spark, JMX, 운영체제 통계, 플러그인 자체 Metrics는 제어하지 않아요. `/glap status`에서 설정값과 현재 실행 중인 상태를 볼 수 있고, 재시작이 필요한 변경도 알려줘요. GLAP1은 Paper 플러그인 호환성을 유지하며 Folia 지원이나 지역별 병렬 틱을 제공하지 않아요.
 
+### GLAP 플러그인 API
+
+가짜 엔티티 API와 Bukkit 상태·패킷 전송은 서버 메인 스레드에서 사용해야 해요. 비동기 작업이 끝난 뒤에는 GLAP 스레드 경계를 통해 메인 스레드로 돌아와요.
+
+```java
+GlapApi.get().serverThread().execute(plugin, () -> {
+    FakeEntity<ArmorStand> display = GlapApi.get().fakeEntities().create(location, ArmorStand.class);
+    display.updateMetadata(stand -> {
+        stand.setInvisible(true);
+        stand.setCustomName(Component.text("GLAP"));
+        stand.setCustomNameVisible(true);
+    });
+    display.spawnTo(player);
+});
+```
+
+가짜 엔티티는 실제 월드 엔티티 목록에 들어가지 않아요. `spawnTo`로 지정한 플레이어에게만 보이고, `teleport`, `updateMetadata`, `updateEquipment`, `hideFrom`, `remove`도 같은 메인 스레드 규칙을 따라요. 가짜 플레이어 엔티티는 현재 지원하지 않아요.
+
 ## 서버 실행
 
 1. [릴리스](https://github.com/winterliy/GLAP/releases)에서 `glap-<버전>.jar`를 받아요.
-2. 서버 폴더에 넣고 실행해요.
+2. Kode 플러그인을 사용하는 경우 `kode.jar`도 서버 폴더의 `plugins/`에 넣어요.
+3. 서버를 실행해요.
 
    ```sh
    java -Xms3G -Xmx3G -jar glap-<버전>.jar --nogui
@@ -65,8 +85,10 @@ privacy:
 git clone https://github.com/winterliy/GLAP.git
 cd GLAP
 ./gradlew applyAllPatches      # Paper 코드를 받아 GLAP 패치를 적용
-./gradlew createPaperclipJar   # glap-server/build/libs/ 에 jar 생성
+./gradlew createPaperclipJar :kode:shadowJar   # 서버 jar와 kode/build/libs/kode-1.0.0.jar 생성
 ```
+
+Kode는 별도 jar로 빌드돼요. GitHub 릴리스 자동 첨부는 저장소 Actions 권한 설정이 필요해 아직 활성화되지 않았어요.
 
 zip으로 받으면 빌드되지 않아요. 반드시 `git clone`으로 받아주세요.
 
@@ -82,6 +104,7 @@ glap-server/
 ├── src/main/kotlin/dev/glap/     GLAP 내부 로직 (Kotlin)
 ├── paper-patches/                Paper 코드에 얹는 패치 (Java)
 └── minecraft-patches/            마인크래프트 코드에 얹는 패치 (Java)
+kode/                             Kode 런타임 제공 플러그인 (별도 jar)
 paper-api/, paper-server/         applyAllPatches가 생성 (Git에 올라가지 않음)
 ```
 

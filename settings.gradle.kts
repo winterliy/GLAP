@@ -32,7 +32,7 @@ if (!file(".git").exists()) {
 }
 
 rootProject.name = "glap"
-for (name in listOf("glap-api", "glap-server", "glap-checkstyle")) {
+for (name in listOf("glap-api", "glap-server", "glap-checkstyle", "kode")) {
     val projName = name.lowercase(Locale.ENGLISH)
     include(projName)
     findProject(":$projName")!!.projectDir = file(name)
