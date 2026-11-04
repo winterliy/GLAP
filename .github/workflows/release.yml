@@ -35,11 +35,12 @@ jobs:
       - name: Apply Patches
         run: ./gradlew applyAllPatches --stacktrace
       - name: Build
-        run: ./gradlew createPaperclipJar --stacktrace
+        run: ./gradlew createPaperclipJar :kode:shadowJar --stacktrace
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp glap-server/build/libs/*-paperclip-*.jar "glap-$VERSION.jar"
+          cp kode/build/libs/kode.jar kode.jar
           awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {found=1; next} found && /^## \[/ {exit} found' CHANGELOG.md > notes.md
-          gh release create "$GITHUB_REF_NAME" "glap-$VERSION.jar" --title "GLAP1 $VERSION" --notes-file notes.md
+          gh release create "$GITHUB_REF_NAME" "glap-$VERSION.jar" kode.jar --title "GLAP1 $VERSION" --notes-file notes.md

@@ -28,8 +28,10 @@ jobs:
       - name: Apply Patches
         run: ./gradlew applyAllPatches --stacktrace
       - name: Build
-        run: ./gradlew createPaperclipJar --stacktrace
+        run: ./gradlew createPaperclipJar :kode:shadowJar --stacktrace
       - uses: actions/upload-artifact@v5
         with:
-          name: glap-jar
-          path: glap-server/build/libs/*-paperclip-*.jar
+          name: glap-distribution
+          path: |
+            glap-server/build/libs/*-paperclip-*.jar
+            kode/build/libs/kode.jar
