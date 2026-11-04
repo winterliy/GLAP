@@ -24,8 +24,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-    archiveBaseName.set("kode")
-    archiveClassifier.set("")
+    archiveFileName.set("kode.jar")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
 }

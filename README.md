@@ -15,7 +15,7 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | `glap.yml` | 게임 규칙, 업데이트 확인, Paper 내장 Metrics를 설정해요. 서버 폴더에 자동으로 만들어져요. |
 | `/glap` | `/glap version`으로 버전을 확인하고, `/glap status`로 설정 상태를 보고, `/glap reload`로 설정을 다시 읽어요. OP만 쓸 수 있어요. |
 | 업데이트 알림 | 기본값은 서버 시작 시 GitHub 릴리스를 확인해요. `updates.enabled: false`로 자동·수동 원격 확인을 끌 수 있어요. |
-| Kode 런타임 | `:kode:shadowJar`로 별도 `kode.jar`를 만들어요. Kotlin 플러그인은 `depend: [Kode]`로 선언해 공용 Kotlin 런타임을 사용해요. |
+| Kode 런타임 | GLAP 빌드가 `kode.jar`를 함께 만들고 GitHub 릴리스에 서버 jar와 함께 올려요. Kotlin 플러그인은 `depend: [Kode]`로 공용 Kotlin 런타임을 사용해요. |
 
 ### `glap.yml`
 
@@ -69,8 +69,8 @@ GlapApi.get().serverThread().execute(plugin, () -> {
 
 ## 서버 실행
 
-1. [릴리스](https://github.com/winterliy/GLAP/releases)에서 `glap-<버전>.jar`를 받아요.
-2. Kode 플러그인을 사용하는 경우 `kode.jar`도 서버 폴더의 `plugins/`에 넣어요.
+1. [릴리스](https://github.com/winterliy/GLAP/releases)에서 `glap-<버전>.jar`와 `kode.jar`를 받아요.
+2. Kotlin 플러그인을 사용하는 경우 `kode.jar`를 서버 폴더의 `plugins/`에 넣어요.
 3. 서버를 실행해요.
 
    ```sh
@@ -85,10 +85,10 @@ GlapApi.get().serverThread().execute(plugin, () -> {
 git clone https://github.com/winterliy/GLAP.git
 cd GLAP
 ./gradlew applyAllPatches      # Paper 코드를 받아 GLAP 패치를 적용
-./gradlew createPaperclipJar :kode:shadowJar   # 서버 jar와 kode/build/libs/kode-1.0.0.jar 생성
+./gradlew createPaperclipJar :kode:shadowJar   # 서버 jar와 kode/build/libs/kode.jar 생성
 ```
 
-Kode는 별도 jar로 빌드돼요. GitHub 릴리스 자동 첨부는 저장소 Actions 권한 설정이 필요해 아직 활성화되지 않았어요.
+Kode는 Paper 플러그인 클래스 로더에서 공용 Kotlin 런타임을 제공하기 위해 별도 jar로 실행돼요. 소스, 버전, 빌드, 릴리스는 GLAP 저장소에서 함께 관리해요.
 
 zip으로 받으면 빌드되지 않아요. 반드시 `git clone`으로 받아주세요.
 
@@ -104,7 +104,7 @@ glap-server/
 ├── src/main/kotlin/dev/glap/     GLAP 내부 로직 (Kotlin)
 ├── paper-patches/                Paper 코드에 얹는 패치 (Java)
 └── minecraft-patches/            마인크래프트 코드에 얹는 패치 (Java)
-kode/                             Kode 런타임 제공 플러그인 (별도 jar)
+kode/                             GLAP이 관리하는 Kotlin 런타임 제공 플러그인
 paper-api/, paper-server/         applyAllPatches가 생성 (Git에 올라가지 않음)
 ```
 

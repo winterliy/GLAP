@@ -11,7 +11,7 @@ Adapt selected logic from Kommand, Tap, paper-sample-complex, paper-sample-lib, 
 - GLAP is a conventional single-main-thread server. Bukkit/world/entity access and packet sends that touch a live player/entity are main-thread-only. Public entry points either assert the server thread or provide an explicit `execute`/`submit` handoff; asynchronous work may compute immutable data only and must hand results back to the server thread.
 - Keep Java-facing Paper/NMS integration in Java and GLAP internal logic in Kotlin, using a Java API boundary where Paper or Java code must call into Kotlin.
 - Keep API and implementation separated; implement the single supported Minecraft version directly rather than importing Tap's broad multi-version/reflection machinery.
-- Treat Kode as a separate runtime-provider plugin artifact, preserving `provides: [Kotlin]` and plugin classloader dependency semantics. Build it as a GLAP subproject and publish `kode.jar` beside the server jar; keep the standalone `winterliy/kode` repository as an independently maintained source. Do not embed the plugin in the server jar.
+- Treat Kode as a GLAP-owned runtime-provider plugin artifact, preserving `provides: [Kotlin]` and plugin classloader dependency semantics. Build and release it beside the server jar from the GLAP repository; the standalone `winterliy/kode` repository is frozen. Do not embed the plugin in the server jar because Paper plugin dependency resolution requires a plugin provider.
 - Preserve existing GLAP behavior and keep Paper patches small. Do not port unrelated helpers, Folia support, unsafe async Bukkit access, or known flawed fake-projectile range logic.
 
 ## Proposed surface
