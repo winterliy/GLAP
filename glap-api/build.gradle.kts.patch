@@ -31,6 +31,7 @@
          java {
              srcDir(generatedDir)
 +            srcDir(file("../paper-api/src/main/java"))
++            srcDir(file("../glap-api/src/main/java")) // GLAP - public GLAP API
 +        }
 +        resources {
 +            srcDir(file("../paper-api/src/main/resources"))
