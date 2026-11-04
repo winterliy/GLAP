@@ -5,7 +5,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     java // TODO java launcher tasks
     id("io.papermc.paperweight.patcher") version "2.0.0-beta.24"
-    kotlin("jvm") version "2.4.20" apply false
+    kotlin("jvm") version "2.4.21" apply false
+    id("com.gradleup.shadow") version "9.6.1" apply false
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
