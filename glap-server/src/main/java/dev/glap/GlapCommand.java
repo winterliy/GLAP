@@ -1,18 +1,17 @@
 package dev.glap;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
-import net.kyori.adventure.text.format.NamedTextColor;
+import java.util.ServiceLoader;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import static net.kyori.adventure.text.Component.text;
-
-/** {@code /glap version} and {@code /glap reload}. */
+/** Registers the GLAP command with Paper's command map. */
 public final class GlapCommand extends Command {
-    private static final List<String> SUBCOMMANDS = List.of("version", "status", "reload");
+    private static final GlapCommandRouter ROUTER = ServiceLoader.load(GlapCommandRouter.class)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("GLAP command router provider is missing"));
+
     private final MinecraftServer server;
 
     private GlapCommand(final MinecraftServer server) {
@@ -32,45 +31,14 @@ public final class GlapCommand extends Command {
         if (!this.testPermission(sender)) {
             return true;
         }
-        final String sub = args.length == 0 ? "version" : args[0].toLowerCase(Locale.ROOT);
-        switch (sub) {
-            case "version" -> {
-                sender.sendMessage(text("업데이트를 확인하는 중이에요...", NamedTextColor.GRAY));
-                CompletableFuture.supplyAsync(() -> new GlapVersionFetcher().getVersionMessage())
-                    .thenAccept(message -> this.server.execute(() -> sender.sendMessage(message)));
-            }
-            case "status" -> {
-                final GlapSettings settings = GlapConfig.settings();
-                sender.sendMessage(text("GLAP1 " + GlapVersionFetcher.CURRENT_VERSION + " · 설정 버전 " + settings.configVersion(), NamedTextColor.GOLD));
-                sender.sendMessage(text("업데이트 확인: " + enabled(settings.updatesEnabled()), NamedTextColor.GRAY));
-                sender.sendMessage(text("Paper Metrics 설정: " + enabled(settings.paperMetricsEnabled()), NamedTextColor.GRAY));
-                sender.sendMessage(text("Paper Metrics 현재 상태: " + enabled(GlapConfig.metricsEnabledAtStartup()), NamedTextColor.GRAY));
-                if (settings.paperMetricsEnabled() != GlapConfig.metricsEnabledAtStartup()) {
-                    sender.sendMessage(text("Paper Metrics 변경은 서버를 재시작해야 적용돼요.", NamedTextColor.YELLOW));
-                }
-            }
-            case "reload" -> {
-                if (GlapConfig.load()) {
-                    sender.sendMessage(text("glap.yml을 다시 불러왔어요.", NamedTextColor.GREEN));
-                } else {
-                    sender.sendMessage(text("glap.yml 설정을 적용하지 못했어요: " + GlapConfig.lastLoadError(), NamedTextColor.RED));
-                }
-            }
-            default -> sender.sendMessage(text(this.usageMessage, NamedTextColor.RED));
-        }
-        return true;
+        return ROUTER.execute(this.server, sender, args);
     }
 
     @Override
     public List<String> tabComplete(final CommandSender sender, final String alias, final String[] args) {
-        if (args.length != 1) {
+        if (!sender.hasPermission(this.getPermission())) {
             return List.of();
         }
-        final String prefix = args[0].toLowerCase(Locale.ROOT);
-        return SUBCOMMANDS.stream().filter(s -> s.startsWith(prefix)).toList();
-    }
-
-    private static String enabled(final boolean value) {
-        return value ? "켜짐" : "꺼짐";
+        return ROUTER.suggest(this.server, sender, args);
     }
 }
