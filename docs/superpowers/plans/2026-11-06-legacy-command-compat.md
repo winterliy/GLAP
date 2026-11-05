@@ -108,5 +108,5 @@
 - [x] Bump `glapVersion` to `3.1.0` and add release notes.
 - [x] Run `applyAllPatches`, focused tests, and the Paperclip build.
 - [x] Run final isolated-server smoke tests and inspect the release manifest.
-- [ ] Commit and push the release preparation.
-- [ ] Merge the tested feature branch to `26.3`, tag `v3.1.0`, and verify the GitHub release asset and workflow.
+- [x] Commit and push the release preparation.
+- [x] Merge the tested feature branch to `26.3`, tag `v3.1.0`, and verify the GitHub release asset and workflow.

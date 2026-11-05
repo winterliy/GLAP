@@ -40,7 +40,9 @@ Plan: `docs/superpowers/plans/2026-11-06-legacy-command-compat.md`
 
 ## Task 6 — release preparation
 
-- Status: documentation/version changes complete; release commit, mainline merge, tag, and GitHub release remain.
+- Status: complete; GLAP 3.1.0 is published. The release tag points to the tested code and release-preparation commit.
 - Updated README compatibility scope and unsupported cases, changelog 3.1.0 notes, and `glapVersion=3.1.0`.
 - Final verification: `applyAllPatches`, focused JUnit suite, and `createPaperclipJar` succeeded; `printGlapVersion` returned `3.1.0`.
 - Isolated runtime: final candidate started successfully and exercised blockdata, entitydata, xp, effect, and replaceitem paths; the Paperclip jar startup version reported 3.1.0. All commands reached expected modern outcomes and server stopped cleanly.
+- Remote verification: Release workflow run `42065291981` and default-branch Build run `42065031819` succeeded. GitHub Release `https://github.com/winterliy/GLAP/releases/tag/v3.1.0` contains `glap-3.1.0.jar` (64,321,439 bytes; SHA-256 `358989349e7e9d1a4274e9575da312f4180c82276fe406ae3cbe6094c2dceb88`).
+- Local sync at release time: `/Users/sinjaehyeon/Desktop/GLAP1/source` was clean on `26.3` at `46cd5cd338f7e4aac0549cb9b21fedadfd39ffb9`, equal to `origin/26.3` and tag `v3.1.0`.
