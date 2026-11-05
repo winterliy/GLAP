@@ -14,7 +14,7 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | GLAP1 브랜드 | `/version`과 콘솔에 서버 이름이 GLAP1으로 표시돼요. |
 | `glap.yml` | 게임 규칙, 업데이트 확인, Paper 내장 Metrics를 설정해요. 서버 폴더에 자동으로 만들어져요. |
 | `/glap` | `/glap version`으로 버전을 확인하고, `/glap status`로 설정 상태를 보고, `/glap reload`로 설정을 다시 읽어요. OP만 쓸 수 있어요. |
-| 업데이트 알림 | 기본값은 서버 시작 시 GitHub 릴리스를 확인해요. `updates.enabled: false`로 자동·수동 원격 확인을 끌 수 있어요. |
+| 업데이트 알림 | 비공개 GitHub 저장소를 확인하려면 서버 프로세스에 `GLAP_GITHUB_TOKEN`을 설정하세요. 토큰에는 저장소 Contents 읽기 권한이 필요해요. 미설정 시 원격 확인은 기본으로 꺼져요. `updates.enabled: false`로 수동 확인도 끌 수 있어요. |
 | Kode 런타임 | Kode가 GLAP 서버 jar에 내장되고, 시작할 때 `plugins/Kode.jar`로 자동 설치돼요. Kotlin 플러그인은 `depend: [Kode]`로 공용 런타임을 사용해요. |
 
 ### `glap.yml`

@@ -22,7 +22,7 @@ public final class GlapVersionFetcher implements VersionFetcher {
         .findFirst()
         .orElseGet(() -> {
             LOGGER.warn("GLAP1 업데이트 확인 기능(UpdateChecker)을 찾지 못했어요. jar가 잘못 빌드됐을 수 있어요.");
-            return current -> new UpdateChecker.Status.Unknown();
+            return current -> new UpdateChecker.Status.Unknown("업데이트 확인 서비스를 찾지 못했어요.");
         });
 
     @Override
@@ -41,7 +41,7 @@ public final class GlapVersionFetcher implements VersionFetcher {
                 text("GLAP1 " + CURRENT_VERSION + " — 새 버전 " + latest + "이 있어요. ", NamedTextColor.YELLOW)
                     .append(text(RELEASES_PAGE, NamedTextColor.AQUA).clickEvent(ClickEvent.openUrl(RELEASES_PAGE)));
             case UpdateChecker.Status.UpToDate() -> text("GLAP1 " + CURRENT_VERSION + " — 최신 버전이에요.", NamedTextColor.GREEN);
-            case UpdateChecker.Status.Unknown() -> text("GLAP1 " + CURRENT_VERSION + " — 업데이트를 확인하지 못했어요.", NamedTextColor.GRAY);
+            case UpdateChecker.Status.Unknown(final String reason) -> text("GLAP1 " + CURRENT_VERSION + " — " + reason, NamedTextColor.GRAY);
         };
     }
 
@@ -57,7 +57,7 @@ public final class GlapVersionFetcher implements VersionFetcher {
                 LOGGER.warn("*** {} 에서 받을 수 있어요. ***", RELEASES_PAGE);
             }
             case UpdateChecker.Status.UpToDate() -> LOGGER.info("GLAP1 {}은 최신 버전이에요.", CURRENT_VERSION);
-            case UpdateChecker.Status.Unknown() -> LOGGER.info("GLAP1 업데이트를 확인하지 못했어요 (지금 {}).", CURRENT_VERSION);
+            case UpdateChecker.Status.Unknown(final String reason) -> LOGGER.info("GLAP1 업데이트 확인을 건너뛰었어요: {} (지금 {}).", reason, CURRENT_VERSION);
         }
     }
 

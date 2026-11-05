@@ -66,13 +66,15 @@
 @@ -167,21 +190,22 @@
          val git = Git(rootProject.layout.projectDirectory.path)
          val mcVersion = rootProject.providers.gradleProperty("mcVersion").get()
-         val build = System.getenv("BUILD_NUMBER") ?: null
+-        val build = System.getenv("BUILD_NUMBER") ?: null
++        val build = System.getenv("BUILD_NUMBER") ?: System.getenv("GITHUB_RUN_NUMBER") ?: null // GLAP
 -        val buildTime = providers.environmentVariable("BUILD_STARTED_AT").map(Instant::parse).orElse(Instant.EPOCH).get()
 +        val buildTime = if (build != null) Instant.now() else Instant.EPOCH // GLAP
          val gitHash = git.exec(providers, "rev-parse", "--short=7", "HEAD").get().trim()
          val implementationVersion = "$mcVersion-${build ?: "DEV"}-$gitHash"
          val date = git.exec(providers, "show", "-s", "--format=%ci", gitHash).get().trim()
-         val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
+-        val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
++        val gitBranch = System.getenv("GITHUB_REF_NAME") ?: git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim() // GLAP
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
 -            "Implementation-Title" to "Paper",

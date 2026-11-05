@@ -15,7 +15,7 @@ public interface UpdateChecker {
         record Outdated(String latest) implements Status {
         }
 
-        record Unknown() implements Status {
+        record Unknown(String reason) implements Status {
         }
     }
 }

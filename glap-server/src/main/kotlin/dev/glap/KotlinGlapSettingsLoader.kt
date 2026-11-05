@@ -28,7 +28,7 @@ class KotlinGlapSettingsLoader : GlapSettingsLoader {
             boolean(config, "gameplay.allow-water-placement-in-end", false, "true면 엔드에서도 물을 설치할 수 있어요."),
             boolean(config, "gameplay.dispensers-place-anvils", false, "true면 디스펜서가 모루를 블록으로 설치해요."),
             boolean(config, "gameplay.allow-infinity-and-mending-together", false, "true면 활에 무한과 수선을 함께 부여할 수 있어요."),
-            boolean(config, "updates.enabled", true, "false면 시작 시 자동 확인과 /glap version의 원격 확인을 끄고 로컬 버전만 표시해요."),
+            boolean(config, "updates.enabled", !System.getenv("GLAP_GITHUB_TOKEN").isNullOrBlank(), "비공개 저장소 확인은 서버 프로세스에 GLAP_GITHUB_TOKEN을 설정해야 해요. false면 원격 확인을 끄고 로컬 버전만 표시해요."),
             boolean(config, "privacy.paper-metrics-enabled", true, "false면 Paper 내장 Metrics 전송을 끄며 재시작 후 적용돼요.")
         )
 

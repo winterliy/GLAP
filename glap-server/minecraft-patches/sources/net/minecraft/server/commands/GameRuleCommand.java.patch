@@ -1,0 +1,33 @@
+--- a/net/minecraft/server/commands/GameRuleCommand.java
++++ b/net/minecraft/server/commands/GameRuleCommand.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.server.commands;
+ 
++import java.util.List; // GLAP - legacy gamerule aliases
+ import com.mojang.brigadier.CommandDispatcher;
+ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+ import com.mojang.brigadier.context.CommandContext;
+@@ -26,6 +27,9 @@
+                 LiteralArgumentBuilder<CommandSourceStack> unqualified = Commands.literal(gameRule.id());
+                 LiteralArgumentBuilder<CommandSourceStack> qualified = Commands.literal(gameRule.getIdentifier().toString());
+                 base.then(GameRuleCommand.buildRuleArguments(gameRule, unqualified)).then(GameRuleCommand.buildRuleArguments(gameRule, qualified));
++                for (String alias : legacyAliases(gameRule.id())) {
++                    base.then(GameRuleCommand.buildRuleArguments(gameRule, Commands.literal(alias)));
++                }
+             }
+         });
+         dispatcher.register(base);
+@@ -31,5 +35,13 @@
+     }
+ 
++    static List<String> legacyAliases(final String gameRuleId) {
++        return switch (gameRuleId) {
++            case "advance_time" -> List.of("doDaylightCycle");
++            case "advance_weather" -> List.of("doWeatherCycle");
++            default -> List.of();
++        };
++    }
++
+     private static <T> LiteralArgumentBuilder<CommandSourceStack> buildRuleArguments(
+         final GameRule<T> gameRule, final LiteralArgumentBuilder<CommandSourceStack> ruleLiteral
+     ) {

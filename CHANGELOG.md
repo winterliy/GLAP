@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3] - 2026-11-06
+
+### Fixed
+- Authenticate GitHub release checks for the private repository with `GLAP_GITHUB_TOKEN` and explain when the token is missing.
+- Include the CI build number and release tag in server version metadata.
+- Keep the legacy `doDaylightCycle` and `doWeatherCycle` gamerule command names working on Minecraft 26.3.
+
 ## [3.0.2] - 2026-11-05
 
 ### Added
