@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+## [3.1.0] - 2026-11-06
+
+### Added
+- Translate selected Minecraft 1.12.2 command forms (`blockdata`, `entitydata`, `xp`, `effect`, and limited `replaceitem`) through the current command dispatcher.
+- Preserve nested SNBT, selectors, modern permission checks, and the original command source while reparsing translated commands.
+
+### Changed
+- Document unsupported numeric legacy IDs, item damage metadata, and item NBT migration.
+
 ## [3.0.3] - 2026-11-06
 
 ### Fixed
@@ -17,8 +28,6 @@
 ### Changed
 - Advance the Paper 26.3 baseline by 26 commits to `5050b0f33` and adapt the Checkstyle patch to upstream 14.3.0.
 - Keep live Bukkit and packet operations on the single server main thread; reject unsupported fake-player and cross-world operations explicitly.
-
-## Unreleased
 
 ## [3.0.1] - 2026-10-25
 

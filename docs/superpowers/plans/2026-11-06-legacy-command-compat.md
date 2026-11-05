@@ -97,16 +97,16 @@
 - [x] Add tests for entity, block, count, and slot normalization, plus unchanged unsupported metadata/NBT forms.
 - [x] Run RED, implement, and run GREEN.
 - [x] Verify emitted forms against the current dispatcher in an isolated runtime smoke test.
-- [ ] Commit with trailers and push the feature branch.
+- [x] Commit with trailers and push the feature branch.
 
 ### Task 6: Release and documentation
 
 **Files:**
 - Modify: `README.md`, `CHANGELOG.md`, and `gradle.properties`
 
-- [ ] Document supported forms and unsupported numeric IDs/NBT migrations.
-- [ ] Bump `glapVersion` to `3.1.0` and add release notes.
-- [ ] Run `applyAllPatches`, focused tests, and the Paperclip build.
-- [ ] Run final isolated-server smoke tests and inspect the release manifest.
+- [x] Document supported forms and unsupported numeric IDs/NBT migrations.
+- [x] Bump `glapVersion` to `3.1.0` and add release notes.
+- [x] Run `applyAllPatches`, focused tests, and the Paperclip build.
+- [x] Run final isolated-server smoke tests and inspect the release manifest.
 - [ ] Commit and push the release preparation.
 - [ ] Merge the tested feature branch to `26.3`, tag `v3.1.0`, and verify the GitHub release asset and workflow.

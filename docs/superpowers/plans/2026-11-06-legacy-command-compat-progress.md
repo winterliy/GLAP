@@ -33,7 +33,14 @@ Plan: `docs/superpowers/plans/2026-11-06-legacy-command-compat.md`
 
 ## Task 5 — limited `/replaceitem`
 
-- Status: implementation and runtime verification complete; feature commit/push pending.
+- Status: complete; committed and pushed as `56eef68e7`.
 - Red/green: the focused suite failed on both supported syntaxes, then passed after adding entity/block forms and slot/item validation.
 - Coverage: entity and block targets, legacy `slot.*` normalization, optional counts, and rejection of numeric IDs, damage values, and item NBT.
 - Runtime: isolated server reported “Replaced 1 slot(s)” for both entity helmet and chest container translations. The same server applied named `/effect` and cleared it with duration `0`. Server stopped cleanly.
+
+## Task 6 — release preparation
+
+- Status: documentation/version changes complete; release commit, mainline merge, tag, and GitHub release remain.
+- Updated README compatibility scope and unsupported cases, changelog 3.1.0 notes, and `glapVersion=3.1.0`.
+- Final verification: `applyAllPatches`, focused JUnit suite, and `createPaperclipJar` succeeded; `printGlapVersion` returned `3.1.0`.
+- Isolated runtime: final candidate started successfully and exercised blockdata, entitydata, xp, effect, and replaceitem paths; the Paperclip jar startup version reported 3.1.0. All commands reached expected modern outcomes and server stopped cleanly.

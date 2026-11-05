@@ -14,8 +14,21 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | GLAP1 브랜드 | `/version`과 콘솔에 서버 이름이 GLAP1으로 표시돼요. |
 | `glap.yml` | 게임 규칙, 업데이트 확인, Paper 내장 Metrics를 설정해요. 서버 폴더에 자동으로 만들어져요. |
 | `/glap` | `/glap version`으로 버전을 확인하고, `/glap status`로 설정 상태를 보고, `/glap reload`로 설정을 다시 읽어요. OP만 쓸 수 있어요. |
+| 1.12.2 명령어 호환 | `/blockdata`, `/entitydata`, `/xp`, `/effect`, `/replaceitem`의 지원되는 이름 기반 문법을 현재 명령어로 변환해요. |
 | 업데이트 알림 | 비공개 GitHub 저장소를 확인하려면 서버 프로세스에 `GLAP_GITHUB_TOKEN`을 설정하세요. 토큰에는 저장소 Contents 읽기 권한이 필요해요. 미설정 시 원격 확인은 기본으로 꺼져요. `updates.enabled: false`로 수동 확인도 끌 수 있어요. |
 | Kode 런타임 | Kode가 GLAP 서버 jar에 내장되고, 시작할 때 `plugins/Kode.jar`로 자동 설치돼요. Kotlin 플러그인은 `depend: [Kode]`로 공용 런타임을 사용해요. |
+
+### 1.12.2 명령어 호환 범위
+
+번역은 명령어 전처리 이벤트 이후, 현재 명령어 처리기로 실행하기 전에 적용돼요. 플러그인 이벤트, 권한 검사, 현재 버전의 유효성 검사는 그대로 동작해요.
+
+- `/blockdata <x> <y> <z> <snbt>` → `/data merge block ...`
+- `/entitydata <대상> <snbt>` → `/data merge entity ...`
+- `/xp <양>[L] [대상]` → 경험치 포인트 또는 레벨 추가. 대상을 생략하면 엔티티 실행자 자신에게 적용돼요. 콘솔처럼 엔티티가 아닌 실행자는 대상 인자 오류를 표시해요.
+- `/effect <대상> clear` 및 이름 기반 효과 부여 문법. `0`초는 제거, `-1`초는 무기한 지속으로 변환돼요.
+- `/replaceitem` 개체/블록 대상 문법. `slot.*` 슬롯을 변환해요.
+
+숫자형 구형 블록·아이템·효과 ID, 아이템 내구도 메타데이터, 구형 아이템 NBT 변환은 지원하지 않아요. 이름 기반 아이템 ID와 SNBT는 현재 버전의 규칙으로 검사돼요. 1.12.2 클라이언트 프로토콜 접속을 지원하는 기능은 아니에요.
 
 ### `glap.yml`
 
