@@ -64,4 +64,22 @@ class LegacyCommandCompatibilityTest {
     fun `xp without a target from a non entity source stays incomplete`() {
         assertEquals("experience add", LegacyCommandCompatibility.translate("xp 5"))
     }
+
+    @Test
+    fun `rewrites effect clear and give forms`() {
+        assertEquals("effect clear Alex", LegacyCommandCompatibility.translate("effect Alex clear"))
+        assertEquals("effect give @a minecraft:speed", LegacyCommandCompatibility.translate("effect @a minecraft:speed"))
+        assertEquals("effect give @s minecraft:speed 45 2 true", LegacyCommandCompatibility.translate("effect @s minecraft:speed 45 2 true"))
+    }
+
+    @Test
+    fun `effect zero duration clears and numeric ids stay unsupported`() {
+        assertEquals("effect clear @p minecraft:speed", LegacyCommandCompatibility.translate("effect @p minecraft:speed 0"))
+        assertNull(LegacyCommandCompatibility.translate("effect @p 1 30 0"))
+    }
+
+    @Test
+    fun `rewrites infinite effect duration`() {
+        assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
+    }
 }

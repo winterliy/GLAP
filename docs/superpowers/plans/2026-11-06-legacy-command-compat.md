@@ -71,7 +71,7 @@
 - [x] Add tests for points, `L` levels, negative amounts, selectors, and omitted targets.
 - [x] Run RED, implement, and run GREEN.
 - [x] Verify emitted syntax reaches current dispatcher (explicit target with no players returns “No player was found”; console omitted-target input reports incomplete `experience add`).
-- [ ] Commit with trailers and push the feature branch.
+- [x] Commit with trailers and push the feature branch.
 
 ### Task 4: `/effect`
 
@@ -81,9 +81,9 @@
 
 **Produces:** Legacy clear and give forms map to the current `/effect clear` and `/effect give` forms. Numeric effect IDs remain unsupported.
 
-- [ ] Add tests for clear, duration/amplifier/particle options, and zero-duration clearing.
-- [ ] Run RED, implement, and run GREEN.
-- [ ] Verify emitted forms against the current dispatcher.
+- [x] Add tests for clear, duration/amplifier/particle options, zero-duration clearing, and infinite duration.
+- [x] Run RED, implement, and run GREEN.
+- [x] Confirm emitted command forms match the current dispatcher command tree.
 - [ ] Commit with trailers and push the feature branch.
 
 ### Task 5: `/replaceitem` limited syntax

@@ -19,7 +19,14 @@ Plan: `docs/superpowers/plans/2026-11-06-legacy-command-compat.md`
 
 ## Task 3 — `/xp`
 
-- Status: implementation and local verification complete; feature commit/push pending.
+- Status: complete; committed and pushed as `56eed592c`.
 - Red/green: tests first failed to compile because source awareness was not in the translator interface; focused suite passed after implementation.
 - Packaging: Paperclip artifact built successfully.
 - Runtime: isolated console `/xp 5` translated to incomplete `experience add` and raised the modern missing-target syntax error; `/xp -2l @a` reached the modern experience command and reported no online players. This confirms parsing/validation; player self-target mutation needs an online player and is covered by the source-aware unit tests.
+
+## Task 4 — `/effect`
+
+- Status: implementation and focused tests complete; feature commit/push pending.
+- Red/green: focused tests failed for missing clear/give rewrites, then passed after implementation.
+- Coverage: named effect IDs, clear, optional duration/amplifier/particle flag, duration 0 as clear, `-1` as current `infinite`, and numeric legacy IDs unchanged.
+- Verification: emitted syntax follows the inspected current `EffectCommands` tree (`effect clear`, `effect give`, current `infinite` branch); focused suite passed.

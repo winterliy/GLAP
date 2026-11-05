@@ -28,12 +28,39 @@ object LegacyCommandCompatibility {
                 val target = tokens.getOrNull(2)?.value ?: if (sourceHasEntity) "@s" else return "experience add"
                 "experience add $target $amount ${if (levels) "levels" else "points"}"
             }
+            "effect" -> translateEffect(tokens) ?: return null
             else -> return null
         }
         return if (hasPrefix) "/$rewritten" else rewritten
     }
 
     private fun String.isSnbtCompound() = startsWith('{') && endsWith('}')
+
+    private fun translateEffect(tokens: List<Token>): String? {
+        if (tokens.size == 3 && tokens[2].value == "clear") return "effect clear ${tokens[1].value}"
+        if (tokens.size !in 3..6) return null
+
+        val target = tokens[1].value
+        val effect = tokens[2].value
+        if (effect.matches(Regex("\\d+"))) return null
+
+        val duration = tokens.getOrNull(3)?.value?.toIntOrNull()
+        if (tokens.size >= 4 && duration == null) return null
+        if (duration == 0) return if (tokens.size == 4) "effect clear $target $effect" else null
+        if (duration != null && duration < 0 && duration != -1) return null
+        if (duration != null && duration > 1_000_000) return null
+
+        val amplifier = tokens.getOrNull(4)?.value?.toIntOrNull()
+        if (tokens.size >= 5 && amplifier !in 0..255) return null
+        val hideParticles = tokens.getOrNull(5)?.value?.lowercase()
+        if (tokens.size == 6 && hideParticles !in setOf("true", "false")) return null
+
+        val parts = mutableListOf("effect", "give", target, effect)
+        if (duration == -1) parts += "infinite" else if (duration != null) parts += duration.toString()
+        if (amplifier != null) parts += amplifier.toString()
+        if (hideParticles != null) parts += hideParticles
+        return parts.joinToString(" ")
+    }
 
     private data class Token(val value: String)
 
