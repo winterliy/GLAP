@@ -18,17 +18,45 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
 | 업데이트 알림 | 비공개 GitHub 저장소를 확인하려면 서버 프로세스에 `GLAP_GITHUB_TOKEN`을 설정하세요. 토큰에는 저장소 Contents 읽기 권한이 필요해요. 미설정 시 원격 확인은 기본으로 꺼져요. `updates.enabled: false`로 수동 확인도 끌 수 있어요. |
 | Kode 런타임 | Kode가 GLAP 서버 jar에 내장되고, 시작할 때 `plugins/Kode.jar`로 자동 설치돼요. Kotlin 플러그인은 `depend: [Kode]`로 공용 런타임을 사용해요. |
 
-### 1.12.2 명령어 호환 범위
+### 1.12.2 명령어 호환
+
+**목표는 Java Edition 1.12.2의 바닐라 명령어 전체를 호환하는 것**이에요. 여기에는 명령어 이름과 별칭, 예전 인자 문법, 선택자, 좌표, 숫자형 ID, 메타데이터, SNBT, 실행 결과와 권한 동작이 포함돼요. 이 작업은 최신 클라이언트로 접속해 1.12.2 명령어를 입력하는 호환 기능이며, 1.12.2 클라이언트 프로토콜 접속을 제공하지는 않아요.
 
 번역은 명령어 전처리 이벤트 이후, 현재 명령어 처리기로 실행하기 전에 적용돼요. 플러그인 이벤트, 권한 검사, 현재 버전의 유효성 검사는 그대로 동작해요.
 
-- `/blockdata <x> <y> <z> <snbt>` → `/data merge block ...`
-- `/entitydata <대상> <snbt>` → `/data merge entity ...`
-- `/xp <양>[L] [대상]` → 경험치 포인트 또는 레벨 추가. 대상을 생략하면 엔티티 실행자 자신에게 적용돼요. 콘솔처럼 엔티티가 아닌 실행자는 대상 인자 오류를 표시해요.
-- `/effect <대상> clear` 및 이름 기반 효과 부여 문법. `0`초는 제거, `-1`초는 무기한 지속으로 변환돼요.
-- `/replaceitem` 개체/블록 대상 문법. `slot.*` 슬롯을 변환해요.
+#### 2026-11-06 작업 요약
 
-숫자형 구형 블록·아이템·효과 ID, 아이템 내구도 메타데이터, 구형 아이템 NBT 변환은 지원하지 않아요. 이름 기반 아이템 ID와 SNBT는 현재 버전의 규칙으로 검사돼요. 1.12.2 클라이언트 프로토콜 접속을 지원하는 기능은 아니에요.
+- 명령 실행 경계에 레거시 명령어 번역기를 연결했어요. 번역한 명령도 현재 명령어 처리기에서 실행돼요.
+- 다음 명령어의 아래에 적힌 형식을 현재 문법으로 바꾸는 기능을 추가했어요.
+  - `/blockdata <x> <y> <z> <snbt>` → `/data merge block ...`
+  - `/entitydata <대상> <snbt>` → `/data merge entity ...`
+  - `/xp <양>[L] [대상]` → 경험치 포인트 또는 레벨 추가
+  - `/effect <대상> clear`와 이름 기반 효과 부여 문법. `0`초는 제거, `-1`초는 무기한 지속으로 변환
+  - `/replaceitem`의 개체·블록 대상 문법과 `slot.*` 슬롯 이름
+- 위 명령의 지원 형식은 격리 서버에서 실행 확인했고, 빌드와 릴리스 검증을 마쳤어요. [v3.1.0 릴리스](https://github.com/winterliy/GLAP/releases/tag/v3.1.0)
+
+`/xp`, `/effect`, `/replaceitem`은 일부 문법만 지원해요. 콘솔 실행, 숫자형 ID, 아이템 내구도 메타데이터, 구형 아이템 NBT 등 아래 미완료 항목은 아직 호환되지 않을 수 있어요.
+
+#### 미완료 명령어와 호환 작업
+
+아래 목록은 Java Edition 1.12.2의 바닐라 명령어 기준이에요. `일부 구현`은 README 위의 지원 형식만 동작한다는 뜻이에요. `호환 작업 필요`는 현재 버전에 같은 이름의 명령이 있더라도 1.12.2 문법과 동작을 확인·보완해야 한다는 뜻이에요. 명령어 별칭도 함께 적었어요.
+
+| 상태 | 1.12.2 명령어 |
+|---|---|
+| 지원 형식 있음, 나머지 호환 작업 필요 | `/blockdata`, `/entitydata`, `/effect`, `/replaceitem`, `/xp` |
+| 호환 작업 필요 | `/advancement`, `/ban`, `/ban-ip`, `/banlist`, `/clear`, `/clone`, `/debug`, `/defaultgamemode`, `/deop`, `/difficulty`, `/enchant`, `/execute`, `/fill`, `/function`, `/gamemode`, `/gamerule`, `/give`, `/help` (`/?`), `/kick`, `/kill`, `/list`, `/locate`, `/me`, `/msg` (`/tell`, `/w`), `/op`, `/pardon`, `/pardon-ip`, `/particle`, `/playsound`, `/publish` (싱글플레이/LAN), `/recipe`, `/reload`, `/save-all`, `/save-off`, `/save-on`, `/say`, `/scoreboard`, `/seed`, `/setblock`, `/setidletimeout`, `/setworldspawn`, `/spawnpoint`, `/spreadplayers`, `/stats`, `/stop`, `/stopsound`, `/summon`, `/tellraw`, `/testfor`, `/testforblock`, `/testforblocks`, `/time`, `/title`, `/toggledownfall`, `/tp` (`/teleport`), `/trigger`, `/weather`, `/whitelist`, `/worldborder` |
+
+`/achievement`은 1.12에서 advancement로 대체되어 1.12.2 명령 목록에 포함하지 않았어요. Bukkit/Paper 플러그인이 추가하는 명령어는 바닐라 기준 목록에 포함되지 않아요.
+
+#### 남은 구현 순서
+
+1. 위 명령어와 별칭 각각에 대해 1.12.2의 사용 형식, 선택자, 권한, 콘솔·플레이어·명령 블록·함수 실행 차이를 기준으로 회귀 사례를 정리해요.
+2. `/execute`, `/testfor*`, `/stats`, `/scoreboard`처럼 삭제되거나 구조가 크게 바뀐 문법을 우선 호환해요.
+3. 아이템·블록·효과·인챈트의 숫자 ID와 데이터 값, 아이템 메타데이터 및 SNBT를 현재 레지스트리 형식으로 변환해요.
+4. 나머지 명령어의 인자 변경, 선택자 인자, 별칭, 권한 및 실행 결과를 보완해요.
+5. 모든 명령어를 플레이어, 콘솔, 명령 블록, 함수에서 검증하고, 완료한 항목을 이 목록에서 갱신해요.
+
+명령 목록은 [Minecraft Wiki의 명령어 문서](https://minecraft.wiki/w/Commands)와 [Java Edition 1.12 업데이트 문서](https://minecraft.wiki/w/Java_Edition_1.12)를 기준으로 정리했어요.
 
 ### `glap.yml`
 
