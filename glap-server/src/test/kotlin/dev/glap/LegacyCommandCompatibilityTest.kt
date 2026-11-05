@@ -46,4 +46,22 @@ class LegacyCommandCompatibilityTest {
             LegacyCommandCompatibility.translate("/entitydata @s {CustomName:\"Example\"}")
         )
     }
+
+    @Test
+    fun `rewrites xp points to experience add`() {
+        assertEquals("experience add @s 5 points", LegacyCommandCompatibility.translate("xp 5", sourceHasEntity = true))
+        assertEquals("/experience add @s -5 points", LegacyCommandCompatibility.translate("/xp -5", sourceHasEntity = true))
+    }
+
+    @Test
+    fun `rewrites xp levels and explicit targets`() {
+        assertEquals("experience add @s 7 levels", LegacyCommandCompatibility.translate("xp 7L", sourceHasEntity = true))
+        assertEquals("experience add Alex -2 levels", LegacyCommandCompatibility.translate("xp -2l Alex"))
+        assertEquals("experience add @a 12 points", LegacyCommandCompatibility.translate("xp 12 @a"))
+    }
+
+    @Test
+    fun `xp without a target from a non entity source stays incomplete`() {
+        assertEquals("experience add", LegacyCommandCompatibility.translate("xp 5"))
+    }
 }

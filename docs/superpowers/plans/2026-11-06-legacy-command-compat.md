@@ -37,7 +37,7 @@
 - Create: `glap-server/src/test/kotlin/dev/glap/LegacyCommandCompatibilityTest.kt`
 - Modify: `glap-server/src/test/java/dev/glap/GlapRuntimeFindingsTestSuite.java`
 
-**Interface:** `LegacyCommandCompatibility.translate(input: String): String?`; null means no supported rewrite. The parser records top-level argument spans while treating quoted strings and balanced `{}`, `[]` as nested.
+**Interface:** `LegacyCommandCompatibility.translate(input: String, sourceHasEntity: Boolean = false): String?`; null means no supported rewrite. The parser records top-level argument spans while treating quoted strings and balanced `{}`, `[]` as nested.
 
 - [x] Add tests for `/blockdata` rewrite, nested SNBT with spaces, malformed nesting, and unchanged unknown input.
 - [x] Run the focused suite and observe expected failures.
@@ -58,7 +58,7 @@
 - [x] Add target and SNBT preservation tests, including selectors.
 - [x] Run RED, implement, and run GREEN.
 - [x] Run the focused suite and runtime smoke test.
-- [ ] Commit with trailers and push the feature branch.
+- [x] Commit with trailers and push the feature branch.
 
 ### Task 3: `/xp`
 
@@ -68,9 +68,9 @@
 
 **Produces:** Legacy point/level forms map to `/experience add`. An omitted target maps to `@s` only when the original command source is an entity; console/RCON with no entity retains current Brigadier error behavior.
 
-- [ ] Add tests for points, `L` levels, negative amounts, selectors, and omitted targets.
-- [ ] Run RED, implement, and run GREEN.
-- [ ] Verify the modern command accepts each emitted form.
+- [x] Add tests for points, `L` levels, negative amounts, selectors, and omitted targets.
+- [x] Run RED, implement, and run GREEN.
+- [x] Verify emitted syntax reaches current dispatcher (explicit target with no players returns “No player was found”; console omitted-target input reports incomplete `experience add`).
 - [ ] Commit with trailers and push the feature branch.
 
 ### Task 4: `/effect`

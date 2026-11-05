@@ -12,7 +12,14 @@ Plan: `docs/superpowers/plans/2026-11-06-legacy-command-compat.md`
 
 ## Task 2 — `/entitydata`
 
-- Status: implementation and local verification complete; feature commit/push pending.
+- Status: complete; committed and pushed as `494d89736`.
 - Red/green: focused tests first failed because `entitydata` was not recognized; after implementation, `./gradlew :glap-server:test --tests dev.glap.GlapRuntimeFindingsTestSuite --no-configuration-cache` passed.
 - Packaging: `./gradlew :glap-server:createPaperclipJar --no-configuration-cache` passed.
 - Runtime: isolated server accepted `summon pig 0 100 0 {CustomName:"Old Pig"}`, translated `entitydata @e[type=minecraft:pig,limit=1] {CustomName:"Legacy Bacon"}`, and `data get entity @e[type=minecraft:pig,limit=1] CustomName` returned `"Legacy Bacon"`. Server stopped cleanly.
+
+## Task 3 — `/xp`
+
+- Status: implementation and local verification complete; feature commit/push pending.
+- Red/green: tests first failed to compile because source awareness was not in the translator interface; focused suite passed after implementation.
+- Packaging: Paperclip artifact built successfully.
+- Runtime: isolated console `/xp 5` translated to incomplete `experience add` and raised the modern missing-target syntax error; `/xp -2l @a` reached the modern experience command and reported no online players. This confirms parsing/validation; player self-target mutation needs an online player and is covered by the source-aware unit tests.

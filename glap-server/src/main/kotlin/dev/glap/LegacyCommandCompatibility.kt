@@ -4,7 +4,7 @@ package dev.glap
 object LegacyCommandCompatibility {
     /** Returns a current command string when [input] uses a supported legacy form. */
     @JvmStatic
-    fun translate(input: String): String? {
+    fun translate(input: String, sourceHasEntity: Boolean = false): String? {
         val hasPrefix = input.startsWith('/')
         val command = if (hasPrefix) input.substring(1) else input
         val rootEnd = command.indexOfFirst(Char::isWhitespace).let { if (it < 0) command.length else it }
@@ -18,6 +18,15 @@ object LegacyCommandCompatibility {
             "entitydata" -> {
                 if (tokens.size != 3 || !tokens[2].value.isSnbtCompound()) return null
                 "data merge entity ${tokens[1].value} ${tokens[2].value}"
+            }
+            "xp" -> {
+                if (tokens.size !in 2..3) return null
+                val legacyAmount = tokens[1].value
+                val levels = legacyAmount.endsWith('L', ignoreCase = true)
+                val amount = if (levels) legacyAmount.dropLast(1) else legacyAmount
+                if (!amount.matches(Regex("-?\\d+"))) return null
+                val target = tokens.getOrNull(2)?.value ?: if (sourceHasEntity) "@s" else return "experience add"
+                "experience add $target $amount ${if (levels) "levels" else "points"}"
             }
             else -> return null
         }

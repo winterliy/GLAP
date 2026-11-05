@@ -30,7 +30,7 @@ The user selected the command-boundary translator. A translator only changes a c
 
 - `/blockdata <x> <y> <z> <snbt>` → `/data merge block <x> <y> <z> <snbt>`
 - `/entitydata <target> <snbt>` → `/data merge entity <target> <snbt>`
-- `/xp <amount>[L] [target]` → `/experience add <target-or-self> <amount> points|levels`
+- `/xp <amount>[L] [target]` → `/experience add <target-or-self> <amount> points|levels`; omitted target uses `@s` only for entity sources, and remains incomplete for console/RCON.
 - `/effect <target> clear` and legacy effect-give forms → current `/effect` syntax
 - `/replaceitem` entity/block forms when using textual item IDs and no legacy damage value or item NBT payload
 

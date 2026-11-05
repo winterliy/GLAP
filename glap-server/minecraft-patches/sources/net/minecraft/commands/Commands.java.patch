@@ -6,7 +6,7 @@
      public void performCommand(final ParseResults<CommandSourceStack> command, final String commandString, final boolean throwCommandError) {
          org.spigotmc.AsyncCatcher.catchOp("Cannot perform command async");
          // Paper end
-+        final String translatedCommand = dev.glap.LegacyCommandCompatibility.translate(commandString);
++        final String translatedCommand = dev.glap.LegacyCommandCompatibility.translate(commandString, command.getContext().getSource().getEntity() != null);
 +        if (translatedCommand != null && !translatedCommand.equals(commandString)) {
 +            this.performCommand(this.dispatcher.parse(translatedCommand, command.getContext().getSource()), translatedCommand, throwCommandError);
 +            return;
