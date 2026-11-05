@@ -30,4 +30,20 @@ class LegacyCommandCompatibilityTest {
     fun `leaves unknown commands alone`() {
         assertNull(LegacyCommandCompatibility.translate("unknown 1 2 3"))
     }
+
+    @Test
+    fun `rewrites entitydata and preserves nested SNBT`() {
+        assertEquals(
+            "data merge entity @e[type=minecraft:pig] {CustomName:\"A B\",Tags:[\"one two\"]}",
+            LegacyCommandCompatibility.translate("entitydata @e[type=minecraft:pig] {CustomName:\"A B\",Tags:[\"one two\"]}")
+        )
+    }
+
+    @Test
+    fun `rewrites entitydata with optional slash`() {
+        assertEquals(
+            "/data merge entity @s {CustomName:\"Example\"}",
+            LegacyCommandCompatibility.translate("/entitydata @s {CustomName:\"Example\"}")
+        )
+    }
 }

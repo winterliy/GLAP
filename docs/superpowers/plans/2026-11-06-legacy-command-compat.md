@@ -44,7 +44,7 @@
 - [x] Implement the minimal tokenizer, rewrite, and central dispatch reparse.
 - [x] Run the focused suite and verify it passes.
 - [x] Build the server and perform a console smoke test for block data merge.
-- [ ] Commit with the required co-author trailers and push the feature branch.
+- [x] Commit with the required co-author trailers and push the feature branch.
 
 ### Task 2: `/entitydata`
 
@@ -55,9 +55,9 @@
 **Consumes:** Task 1 `translate(input: String): String?` and token spans.
 **Produces:** `/entitydata <target> <snbt>` → `/data merge entity <target> <snbt>`.
 
-- [ ] Add target and SNBT preservation tests, including selectors with nested options.
-- [ ] Run RED, implement, and run GREEN.
-- [ ] Run the focused suite and runtime smoke test.
+- [x] Add target and SNBT preservation tests, including selectors.
+- [x] Run RED, implement, and run GREEN.
+- [x] Run the focused suite and runtime smoke test.
 - [ ] Commit with trailers and push the feature branch.
 
 ### Task 3: `/xp`
