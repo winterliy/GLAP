@@ -29,6 +29,7 @@ object LegacyCommandCompatibility {
                 "experience add $target $amount ${if (levels) "levels" else "points"}"
             }
             "effect" -> translateEffect(tokens) ?: return null
+            "replaceitem" -> translateReplaceItem(tokens) ?: return null
             else -> return null
         }
         return if (hasPrefix) "/$rewritten" else rewritten
@@ -60,6 +61,53 @@ object LegacyCommandCompatibility {
         if (amplifier != null) parts += amplifier.toString()
         if (hideParticles != null) parts += hideParticles
         return parts.joinToString(" ")
+    }
+
+    private fun translateReplaceItem(tokens: List<Token>): String? {
+        val mode = tokens.getOrNull(1)?.value ?: return null
+        val slotIndex: Int
+        val itemIndex: Int
+        val output = mutableListOf("item", "replace")
+
+        when (mode) {
+            "entity" -> {
+                if (tokens.size !in 5..6) return null
+                output += listOf("entity", tokens[2].value)
+                slotIndex = 3
+                itemIndex = 4
+            }
+            "block" -> {
+                if (tokens.size !in 7..8) return null
+                output += listOf("block", tokens[2].value, tokens[3].value, tokens[4].value)
+                slotIndex = 5
+                itemIndex = 6
+            }
+            else -> return null
+        }
+
+        val legacySlot = tokens[slotIndex].value
+        if (!legacySlot.startsWith("slot.")) return null
+        val slot = legacySlot.removePrefix("slot.")
+        if (!slot.isSupportedLegacySlot()) return null
+
+        val item = tokens[itemIndex].value
+        if (item.matches(Regex("\\d+")) || !item.matches(Regex("(?:[a-z0-9_.-]+:)?[a-z0-9_./-]+"))) return null
+
+        val count = tokens.getOrNull(itemIndex + 1)?.value?.toIntOrNull()
+        if (itemIndex + 1 < tokens.size && count !in 1..99) return null
+
+        output += listOf(slot, "with", item)
+        if (count != null) output += count.toString()
+        return output.joinToString(" ")
+    }
+
+    private fun String.isSupportedLegacySlot(): Boolean = when {
+        this in setOf("weapon", "weapon.mainhand", "weapon.offhand", "armor.head", "armor.chest", "armor.legs", "armor.feet") -> true
+        startsWith("hotbar.") -> removePrefix("hotbar.").toIntOrNull() in 0..8
+        startsWith("inventory.") -> removePrefix("inventory.").toIntOrNull() in 0..26
+        startsWith("enderchest.") -> removePrefix("enderchest.").toIntOrNull() in 0..26
+        startsWith("container.") -> removePrefix("container.").toIntOrNull() in 0..53
+        else -> false
     }
 
     private data class Token(val value: String)

@@ -82,4 +82,27 @@ class LegacyCommandCompatibilityTest {
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }
+
+    @Test
+    fun `rewrites replaceitem entity and normalizes slots`() {
+        assertEquals(
+            "item replace entity @p armor.head with minecraft:diamond_helmet 1",
+            LegacyCommandCompatibility.translate("replaceitem entity @p slot.armor.head minecraft:diamond_helmet 1")
+        )
+    }
+
+    @Test
+    fun `rewrites replaceitem block and leaves count defaulted`() {
+        assertEquals(
+            "item replace block ~ ~-1 ~ container.0 with stone",
+            LegacyCommandCompatibility.translate("replaceitem block ~ ~-1 ~ slot.container.0 stone")
+        )
+    }
+
+    @Test
+    fun `does not rewrite replaceitem legacy damage or nbt`() {
+        assertNull(LegacyCommandCompatibility.translate("replaceitem entity @s slot.weapon.mainhand minecraft:stone 1 2"))
+        assertNull(LegacyCommandCompatibility.translate("replaceitem entity @s slot.weapon.mainhand minecraft:stone{display:{Name:\"Old\"}} 1"))
+        assertNull(LegacyCommandCompatibility.translate("replaceitem entity @s slot.weapon.mainhand 1 1"))
+    }
 }

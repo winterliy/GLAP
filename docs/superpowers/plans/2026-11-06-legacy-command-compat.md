@@ -84,7 +84,7 @@
 - [x] Add tests for clear, duration/amplifier/particle options, zero-duration clearing, and infinite duration.
 - [x] Run RED, implement, and run GREEN.
 - [x] Confirm emitted command forms match the current dispatcher command tree.
-- [ ] Commit with trailers and push the feature branch.
+- [x] Commit with trailers and push the feature branch.
 
 ### Task 5: `/replaceitem` limited syntax
 
@@ -94,9 +94,9 @@
 
 **Produces:** Entity/block forms map to `/item replace`; convert `slot.*` to current slot names. Translate only named item IDs without legacy damage or NBT suffixes.
 
-- [ ] Add tests for entity, block, count, and slot normalization, plus unchanged unsupported metadata/NBT forms.
-- [ ] Run RED, implement, and run GREEN.
-- [ ] Verify emitted forms against the current dispatcher.
+- [x] Add tests for entity, block, count, and slot normalization, plus unchanged unsupported metadata/NBT forms.
+- [x] Run RED, implement, and run GREEN.
+- [x] Verify emitted forms against the current dispatcher in an isolated runtime smoke test.
 - [ ] Commit with trailers and push the feature branch.
 
 ### Task 6: Release and documentation

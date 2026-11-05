@@ -26,7 +26,14 @@ Plan: `docs/superpowers/plans/2026-11-06-legacy-command-compat.md`
 
 ## Task 4 — `/effect`
 
-- Status: implementation and focused tests complete; feature commit/push pending.
+- Status: complete; committed and pushed as `2f3a204f8`.
 - Red/green: focused tests failed for missing clear/give rewrites, then passed after implementation.
 - Coverage: named effect IDs, clear, optional duration/amplifier/particle flag, duration 0 as clear, `-1` as current `infinite`, and numeric legacy IDs unchanged.
 - Verification: emitted syntax follows the inspected current `EffectCommands` tree (`effect clear`, `effect give`, current `infinite` branch); focused suite passed.
+
+## Task 5 — limited `/replaceitem`
+
+- Status: implementation and runtime verification complete; feature commit/push pending.
+- Red/green: the focused suite failed on both supported syntaxes, then passed after adding entity/block forms and slot/item validation.
+- Coverage: entity and block targets, legacy `slot.*` normalization, optional counts, and rejection of numeric IDs, damage values, and item NBT.
+- Runtime: isolated server reported “Replaced 1 slot(s)” for both entity helmet and chest container translations. The same server applied named `/effect` and cleared it with duration `0`. Server stopped cleanly.
