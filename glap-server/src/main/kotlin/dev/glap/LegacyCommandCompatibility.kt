@@ -147,7 +147,8 @@ object LegacyCommandCompatibility {
         if (contents.any { it in "\"'{}[]" }) return target
         val arguments = contents.split(',')
         val converted = mutableListOf<String>()
-        val legacyKeys = setOf("rm", "r", "lm", "l", "m")
+        val legacyKeys = setOf("rm", "r", "lm", "l", "m", "c")
+        var selector = target.substringBefore('[')
         for ((minimumKey, maximumKey, destination) in listOf(Triple("rm", "r", "distance"), Triple("lm", "l", "level"))) {
             val minimum = arguments.filter { it.substringBefore('=') == minimumKey }
             val maximum = arguments.filter { it.substringBefore('=') == maximumKey }
@@ -172,6 +173,23 @@ object LegacyCommandCompatibility {
             }
             converted += "gamemode=${if (negated) "!" else ""}$mode"
         }
+        val counts = arguments.filter { it.substringBefore('=') == "c" }
+        if (counts.isNotEmpty()) {
+            if (counts.size != 1 || arguments.any { it.substringBefore('=') in setOf("sort", "limit") }) return null
+            val count = counts.single().substringAfter('=', "").toIntOrNull() ?: return null
+            if (count == Int.MIN_VALUE) return null
+            // In 1.12, c=1 gives the source entity priority even when it is not nearest.
+            if (count == 1 && selector != "@r" && selector != "@s") return null
+            if (selector != "@s") {
+                val random = selector == "@r"
+                if (count == 0 && selector == "@p") selector = "@a"
+                if (random && (count == 0 || arguments.any { it.substringBefore('=') == "type" })) {
+                    selector = if (arguments.any { it.substringBefore('=') == "type" }) "@e" else "@a"
+                }
+                converted += "sort=${if (random) "random" else if (count < 0) "furthest" else "nearest"}"
+                if (count != 0) converted += "limit=${kotlin.math.abs(count)}"
+            }
+        }
         val scoreArguments = arguments.filter { it.substringBefore('=').startsWith("score_") }
         if (scoreArguments.isNotEmpty()) {
             if (arguments.any { it.substringBefore('=') == "scores" }) return null
@@ -190,9 +208,10 @@ object LegacyCommandCompatibility {
                 "$objective=${bounds.first ?: ""}..${bounds.second ?: ""}"
             }
         }
-        if (converted.isEmpty()) return target
+        if (converted.isEmpty() && counts.isEmpty()) return target
         val remaining = arguments.filterNot { it.substringBefore('=') in legacyKeys || it.substringBefore('=').startsWith("score_") }.filter { it.isNotEmpty() }
-        return target.substringBefore('[') + (remaining + converted).joinToString(",", "[", "]")
+        val output = remaining + converted
+        return selector + if (output.isEmpty()) "" else output.joinToString(",", "[", "]")
     }
 
     private fun translateEffect(tokens: List<Token>): String? {

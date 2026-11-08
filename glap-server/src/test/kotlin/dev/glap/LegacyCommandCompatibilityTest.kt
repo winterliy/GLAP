@@ -7,6 +7,31 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy selector count preserves nearest furthest and unlimited selection`() {
+        assertEquals(
+            "execute as @e[type=pig,sort=furthest,limit=2] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=pig,c=-2] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[sort=nearest,limit=3] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[c=3] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[sort=nearest] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @p[c=0] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[type=pig,sort=random,limit=1] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @r[type=pig,c=-1] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @s at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @s[c=1] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @e[c=1] ~ ~ ~ say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @e[c=2,sort=random] ~ ~ ~ say found"))
+    }
+    @Test
     fun `legacy execute supports signed and fractional coordinates`() {
         assertEquals(
             "execute as @s at @s positioned 1.0 .5 ~-.25 run say hello",
