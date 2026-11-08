@@ -7,6 +7,19 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy selector score bounds translate to modern score ranges`() {
+        assertEquals(
+            "execute as @e[scores={deaths=..2,kills=3..9}] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[score_kills_min=3,score_kills=9,score_deaths=2] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[distance=..10,scores={points=-5..}] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[r=10,score_points_min=-5] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @e[score_points=bad] ~ ~ ~ say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @e[score_points=1,score_points=2] ~ ~ ~ say found"))
+    }
+    @Test
     fun `legacy execute accepts UUID targets and names matching modern keywords`() {
         val uuid = "12345678-1234-1234-1234-123456789abc"
         assertEquals(

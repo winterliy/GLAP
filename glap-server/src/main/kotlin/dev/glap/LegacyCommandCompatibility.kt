@@ -50,7 +50,7 @@ object LegacyCommandCompatibility {
         if (tokens.size < 6) return null
         val originalTarget = tokens[1].value
         if (!originalTarget.matches(Regex("@[pares](?:\\[.*])?|[A-Za-z0-9_]{1,16}|[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}"))) return null
-        val target = translateRadiusSelector(originalTarget) ?: return null
+        val target = translateLegacySelector(originalTarget) ?: return null
         val coordinates = tokens.subList(2, 5).map { it.value }
         if (coordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
         val positionedCoordinates = coordinates.mapIndexed { index, coordinate ->
@@ -132,7 +132,7 @@ object LegacyCommandCompatibility {
         return "$name${values.joinToString(",", "[", "]")}"
     }
 
-    private fun translateRadiusSelector(target: String): String? {
+    private fun translateLegacySelector(target: String): String? {
         if (!target.startsWith('@') || !target.contains('[')) return target
         val contents = target.substringAfter('[').dropLast(1)
         if (contents.any { it in "\"'{}[]" }) return target
@@ -149,8 +149,26 @@ object LegacyCommandCompatibility {
             if ((minimum.isNotEmpty() && !low.matches(Regex("\\d+"))) || (maximum.isNotEmpty() && !high.matches(Regex("\\d+")))) return null
             converted += "$destination=$low..$high"
         }
+        val scoreArguments = arguments.filter { it.substringBefore('=').startsWith("score_") }
+        if (scoreArguments.isNotEmpty()) {
+            if (arguments.any { it.substringBefore('=') == "scores" }) return null
+            val scores = sortedMapOf<String, Pair<Int?, Int?>>()
+            for (argument in scoreArguments) {
+                val key = argument.substringBefore('=').removePrefix("score_")
+                val minimum = key.endsWith("_min") && key.length > 4
+                val objective = if (minimum) key.removeSuffix("_min") else key
+                if (!objective.matches(Regex("[A-Za-z0-9_.+-]+"))) return null
+                val value = argument.substringAfter('=', "").toIntOrNull() ?: return null
+                val bounds = scores[objective] ?: (null to null)
+                if ((minimum && bounds.first != null) || (!minimum && bounds.second != null)) return null
+                scores[objective] = if (minimum) value to bounds.second else bounds.first to value
+            }
+            converted += scores.entries.joinToString(",", "scores={", "}") { (objective, bounds) ->
+                "$objective=${bounds.first ?: ""}..${bounds.second ?: ""}"
+            }
+        }
         if (converted.isEmpty()) return target
-        val remaining = arguments.filterNot { it.substringBefore('=') in legacyKeys }.filter { it.isNotEmpty() }
+        val remaining = arguments.filterNot { it.substringBefore('=') in legacyKeys || it.substringBefore('=').startsWith("score_") }.filter { it.isNotEmpty() }
         return target.substringBefore('[') + (remaining + converted).joinToString(",", "[", "]")
     }
 
