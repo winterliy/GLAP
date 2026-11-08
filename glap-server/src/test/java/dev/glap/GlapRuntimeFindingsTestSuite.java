@@ -5,6 +5,6 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @Suite
-@SelectClasses({GitHubUpdateCheckerTest.class, GameRuleCommandAliasesTest.class, LegacyCommandCompatibilityTest.class})
+@SelectClasses({GitHubUpdateCheckerTest.class, GameRuleCommandAliasesTest.class, LegacyCommandCompatibilityTest.class, LegacyFunctionCompatibilityTest.class})
 class GlapRuntimeFindingsTestSuite {
 }

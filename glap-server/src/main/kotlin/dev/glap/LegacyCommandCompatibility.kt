@@ -30,12 +30,55 @@ object LegacyCommandCompatibility {
             }
             "effect" -> translateEffect(tokens) ?: return null
             "replaceitem" -> translateReplaceItem(tokens) ?: return null
+            "execute" -> translateExecute(tokens) ?: return null
             else -> return null
         }
         return if (hasPrefix) "/$rewritten" else rewritten
     }
 
     private fun String.isSnbtCompound() = startsWith('{') && endsWith('}')
+
+    private fun translateExecute(tokens: List<Token>): String? {
+        if (tokens.size < 6) return null
+        val originalTarget = tokens[1].value
+        if (!originalTarget.matches(Regex("@[pares](?:\\[.*])?|[A-Za-z0-9_]{1,16}"))) return null
+        if (originalTarget in setOf("as", "at", "positioned", "rotated", "facing", "align", "anchored", "in", "if", "unless", "store", "run", "on", "summon")) return null
+        val target = translateRadiusSelector(originalTarget) ?: return null
+        val coordinates = tokens.subList(2, 5).map { it.value }
+        if (coordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
+        var commandStart = 5
+        var condition = ""
+        if (tokens[5].value == "detect") {
+            if (tokens.size < 12) return null
+            val detectCoordinates = tokens.subList(6, 9).map { it.value }
+            if (detectCoordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
+            val block = tokens[9].value
+            // Other legacy block IDs may expand to several modern IDs for different metadata values.
+            if (block !in setOf("bedrock", "minecraft:bedrock") || tokens[10].value != "-1") return null
+            condition = " if block ${detectCoordinates.joinToString(" ")} $block"
+            commandStart = 11
+        }
+        val nested = tokens.drop(commandStart).joinToString(" ") { it.value }.removePrefix("/")
+        val translated = translate(nested, sourceHasEntity = true) ?: nested
+        return "execute as $target at @s positioned ${coordinates.joinToString(" ")}$condition run $translated"
+    }
+
+    private fun translateRadiusSelector(target: String): String? {
+        if (!target.startsWith('@') || !target.contains('[')) return target
+        val contents = target.substringAfter('[').dropLast(1)
+        if (contents.any { it in "\"'{}[]" }) return target
+        val arguments = contents.split(',')
+        val minimum = arguments.filter { it.startsWith("rm=") }
+        val maximum = arguments.filter { it.startsWith("r=") }
+        if (minimum.isEmpty() && maximum.isEmpty()) return target
+        if (minimum.size > 1 || maximum.size > 1) return null
+        val low = minimum.singleOrNull()?.substringAfter('=') ?: ""
+        val high = maximum.singleOrNull()?.substringAfter('=') ?: ""
+        if ((low.isNotEmpty() && !low.matches(Regex("\\d+"))) || (high.isNotEmpty() && !high.matches(Regex("\\d+")))) return null
+        if ((minimum.isNotEmpty() && low.isEmpty()) || (maximum.isNotEmpty() && high.isEmpty())) return null
+        val remaining = arguments.filterNot { it.startsWith("rm=") || it.startsWith("r=") }.filter { it.isNotEmpty() }
+        return target.substringBefore('[') + (remaining + "distance=$low..$high").joinToString(",", "[", "]")
+    }
 
     private fun translateEffect(tokens: List<Token>): String? {
         if (tokens.size == 3 && tokens[2].value == "clear") return "effect clear ${tokens[1].value}"

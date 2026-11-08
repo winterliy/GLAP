@@ -6,6 +6,45 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy execute converts minimum and maximum selector radius`() {
+        assertEquals(
+            "execute as @e[distance=2..10] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[rm=2,r=10] ~ ~ ~ say found")
+        )
+    }
+    @Test
+    fun `legacy execute detects any state of a named block`() {
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:bedrock run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ minecraft:bedrock -1 say found")
+        )
+    }
+
+    @Test
+    fun `legacy execute does not silently discard block metadata`() {
+        assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 14 say found"))
+    }
+    @Test
+    fun `legacy execute runs at each target position with coordinates relative to it`() {
+        assertEquals(
+            "execute as @a at @s positioned ~ ~1 ~-2 run say hello world",
+            LegacyCommandCompatibility.translate("execute @a ~ ~1 ~-2 say hello world")
+        )
+    }
+
+    @Test
+    fun `legacy execute recursively translates nested legacy commands`() {
+        assertEquals(
+            "/execute as @p at @s positioned ~ ~ ~ run effect give @s minecraft:speed 10",
+            LegacyCommandCompatibility.translate("/execute @p ~ ~ ~ effect @s minecraft:speed 10")
+        )
+    }
+
+    @Test
+    fun `modern execute syntax remains untouched`() {
+        assertNull(LegacyCommandCompatibility.translate("execute as @a at @s positioned ~ ~ ~ run say hello"))
+    }
+    @Test
     fun `rewrites blockdata into current data merge syntax`() {
         assertEquals(
             "data merge block 10 64 -3 {CustomName:\"A B\",Items:[{id:\"minecraft:stone\",Count:1b}]}",
