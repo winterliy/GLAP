@@ -49,8 +49,7 @@ object LegacyCommandCompatibility {
     private fun translateExecute(tokens: List<Token>): String? {
         if (tokens.size < 6) return null
         val originalTarget = tokens[1].value
-        if (!originalTarget.matches(Regex("@[pares](?:\\[.*])?|[A-Za-z0-9_]{1,16}"))) return null
-        if (originalTarget in setOf("as", "at", "positioned", "rotated", "facing", "align", "anchored", "in", "if", "unless", "store", "run", "on", "summon")) return null
+        if (!originalTarget.matches(Regex("@[pares](?:\\[.*])?|[A-Za-z0-9_]{1,16}|[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}"))) return null
         val target = translateRadiusSelector(originalTarget) ?: return null
         val coordinates = tokens.subList(2, 5).map { it.value }
         if (coordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null

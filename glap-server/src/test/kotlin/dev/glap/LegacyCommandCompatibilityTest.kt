@@ -7,6 +7,18 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy execute accepts UUID targets and names matching modern keywords`() {
+        val uuid = "12345678-1234-1234-1234-123456789abc"
+        assertEquals(
+            "execute as $uuid at @s positioned ~ ~ ~ run say hello",
+            LegacyCommandCompatibility.translate("execute $uuid ~ ~ ~ say hello")
+        )
+        assertEquals(
+            "execute as as at @s positioned ~ ~ ~ run say hello",
+            LegacyCommandCompatibility.translate("execute as ~ ~ ~ say hello")
+        )
+    }
+    @Test
     fun `legacy execute absolute integer coordinates are not centered`() {
         assertEquals(
             "execute as @p at @s positioned 12.0 64 -3.0 run say hello",
