@@ -7,6 +7,18 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy selector entity types are upgraded to current names`() {
+        assertEquals(
+            "execute as @e[type=minecraft:zombified_piglin] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=PigZombie] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[type=!minecraft:iron_golem] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=!minecraft:villager_golem] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @e[type=Zombie] ~ ~ ~ say found"))
+    }
+    @Test
     fun `legacy selector count preserves nearest furthest and unlimited selection`() {
         assertEquals(
             "execute as @e[type=pig,sort=furthest,limit=2] at @s positioned ~ ~ ~ run say found",

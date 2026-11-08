@@ -1,6 +1,9 @@
 package dev.glap
 
 import net.minecraft.SharedConstants
+import com.mojang.serialization.Dynamic
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtOps
 import net.minecraft.util.datafix.DataFixers
 import net.minecraft.util.datafix.fixes.BlockStateData
 import net.minecraft.util.datafix.fixes.EntityBlockStateFix
@@ -10,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap
 /** Rewrites supported legacy command forms before the current Brigadier tree parses them. */
 object LegacyCommandCompatibility {
     private val legacyBlockStates = ConcurrentHashMap<Int, String>()
+    private val legacyEntityTypes = ConcurrentHashMap<String, String>()
     /** Returns a current command string when [input] uses a supported legacy form. */
     @JvmStatic
     fun translate(input: String, sourceHasEntity: Boolean = false): String? {
@@ -147,7 +151,7 @@ object LegacyCommandCompatibility {
         if (contents.any { it in "\"'{}[]" }) return target
         val arguments = contents.split(',')
         val converted = mutableListOf<String>()
-        val legacyKeys = setOf("rm", "r", "lm", "l", "m", "c")
+        val legacyKeys = mutableSetOf("rm", "r", "lm", "l", "m", "c")
         var selector = target.substringBefore('[')
         for ((minimumKey, maximumKey, destination) in listOf(Triple("rm", "r", "distance"), Triple("lm", "l", "level"))) {
             val minimum = arguments.filter { it.substringBefore('=') == minimumKey }
@@ -190,6 +194,19 @@ object LegacyCommandCompatibility {
                 if (count != 0) converted += "limit=${kotlin.math.abs(count)}"
             }
         }
+        val entityTypes = arguments.filter { it.substringBefore('=') == "type" }
+        if (entityTypes.size == 1) {
+            val rawType = entityTypes.single().substringAfter('=', "")
+            val negated = rawType.startsWith('!')
+            val entityType = rawType.removePrefix("!")
+            if (entityType.matches(Regex("[A-Za-z0-9_.:-]+"))) {
+                val updatedType = translateLegacyEntityType(entityType) ?: return null
+                if (updatedType != entityType && updatedType != "minecraft:$entityType") {
+                    converted += "type=${if (negated) "!" else ""}$updatedType"
+                    legacyKeys += "type"
+                }
+            }
+        }
         val scoreArguments = arguments.filter { it.substringBefore('=').startsWith("score_") }
         if (scoreArguments.isNotEmpty()) {
             if (arguments.any { it.substringBefore('=') == "scores" }) return null
@@ -212,6 +229,23 @@ object LegacyCommandCompatibility {
         val remaining = arguments.filterNot { it.substringBefore('=') in legacyKeys || it.substringBefore('=').startsWith("score_") }.filter { it.isNotEmpty() }
         val output = remaining + converted
         return selector + if (output.isEmpty()) "" else output.joinToString(",", "[", "]")
+    }
+
+    private fun translateLegacyEntityType(entityType: String): String? {
+        // These old IDs also represented variants that became distinct modern entity types.
+        if (entityType in setOf("Zombie", "Skeleton", "EntityHorse", "Guardian")) return null
+        legacyEntityTypes[entityType]?.let { return it }
+        SharedConstants.tryDetectVersion()
+        val tag = CompoundTag()
+        tag.putString("id", entityType)
+        val version = if (entityType.any(Char::isUpperCase)) 704 else 1343
+        val updated = DataFixers.getDataFixer().update(
+            References.ENTITY, Dynamic(NbtOps.INSTANCE, tag), version,
+            SharedConstants.getCurrentVersion().dataVersion().version()
+        )
+        val mapped = updated.get("id").asString(entityType)
+        if (legacyEntityTypes.size < 1024) legacyEntityTypes.putIfAbsent(entityType, mapped)
+        return mapped
     }
 
     private fun translateEffect(tokens: List<Token>): String? {
