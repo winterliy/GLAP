@@ -138,7 +138,7 @@ object LegacyCommandCompatibility {
         if (contents.any { it in "\"'{}[]" }) return target
         val arguments = contents.split(',')
         val converted = mutableListOf<String>()
-        val legacyKeys = setOf("rm", "r", "lm", "l")
+        val legacyKeys = setOf("rm", "r", "lm", "l", "m")
         for ((minimumKey, maximumKey, destination) in listOf(Triple("rm", "r", "distance"), Triple("lm", "l", "level"))) {
             val minimum = arguments.filter { it.substringBefore('=') == minimumKey }
             val maximum = arguments.filter { it.substringBefore('=') == maximumKey }
@@ -148,6 +148,20 @@ object LegacyCommandCompatibility {
             val high = maximum.singleOrNull()?.substringAfter('=', "") ?: ""
             if ((minimum.isNotEmpty() && !low.matches(Regex("\\d+"))) || (maximum.isNotEmpty() && !high.matches(Regex("\\d+")))) return null
             converted += "$destination=$low..$high"
+        }
+        val modes = arguments.filter { it.substringBefore('=') == "m" }
+        if (modes.isNotEmpty()) {
+            if (modes.size != 1 || arguments.any { it.substringBefore('=') == "gamemode" }) return null
+            val rawMode = modes.single().substringAfter('=', "")
+            val negated = rawMode.startsWith('!')
+            val mode = when (rawMode.removePrefix("!")) {
+                "0", "s", "survival" -> "survival"
+                "1", "c", "creative" -> "creative"
+                "2", "a", "adventure" -> "adventure"
+                "3", "sp", "spectator" -> "spectator"
+                else -> return null
+            }
+            converted += "gamemode=${if (negated) "!" else ""}$mode"
         }
         val scoreArguments = arguments.filter { it.substringBefore('=').startsWith("score_") }
         if (scoreArguments.isNotEmpty()) {

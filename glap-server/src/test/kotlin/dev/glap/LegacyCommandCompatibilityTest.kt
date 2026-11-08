@@ -7,6 +7,18 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy selector game mode accepts numeric abbreviated and negated values`() {
+        assertEquals(
+            "execute as @a[gamemode=creative] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[m=1] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[gamemode=!spectator] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[m=!sp] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @a[m=invalid] ~ ~ ~ say found"))
+    }
+    @Test
     fun `legacy selector score bounds translate to modern score ranges`() {
         assertEquals(
             "execute as @e[scores={deaths=..2,kills=3..9}] at @s positioned ~ ~ ~ run say found",
