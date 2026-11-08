@@ -54,6 +54,9 @@ object LegacyCommandCompatibility {
         val target = translateRadiusSelector(originalTarget) ?: return null
         val coordinates = tokens.subList(2, 5).map { it.value }
         if (coordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
+        val positionedCoordinates = coordinates.mapIndexed { index, coordinate ->
+            if (index != 1 && !coordinate.startsWith('~') && '.' !in coordinate) "$coordinate.0" else coordinate
+        }
         var commandStart = 5
         var condition = ""
         if (tokens[5].value == "detect") {
@@ -73,7 +76,7 @@ object LegacyCommandCompatibility {
         }
         val nested = tokens.drop(commandStart).joinToString(" ") { it.value }.removePrefix("/")
         val translated = translate(nested, sourceHasEntity = true) ?: nested
-        return "execute as $target at @s positioned ${coordinates.joinToString(" ")}$condition run $translated"
+        return "execute as $target at @s positioned ${positionedCoordinates.joinToString(" ")}$condition run $translated"
     }
 
     private fun translateLegacyBlockState(block: String, metadata: Int): String? {

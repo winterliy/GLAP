@@ -6,6 +6,13 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy execute absolute integer coordinates are not centered`() {
+        assertEquals(
+            "execute as @p at @s positioned 12.0 64 -3.0 run say hello",
+            LegacyCommandCompatibility.translate("execute @p 12 64 -3 say hello")
+        )
+    }
+    @Test
     fun `legacy execute converts minimum and maximum selector radius`() {
         assertEquals(
             "execute as @e[distance=2..10] at @s positioned ~ ~ ~ run say found",
