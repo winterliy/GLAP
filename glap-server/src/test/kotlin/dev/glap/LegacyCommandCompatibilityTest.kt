@@ -22,7 +22,29 @@ class LegacyCommandCompatibilityTest {
 
     @Test
     fun `legacy execute does not silently discard block metadata`() {
-        assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 14 say found"))
+        assertEquals(35, net.minecraft.util.datafix.fixes.EntityBlockStateFix.getBlockId("minecraft:wool"))
+        assertEquals("minecraft:red_wool", net.minecraft.util.datafix.fixes.BlockStateData.getTag(574).get("Name").asString(""))
+        net.minecraft.SharedConstants.tryDetectVersion()
+        val upgraded = net.minecraft.util.datafix.DataFixers.getDataFixer().update(
+            net.minecraft.util.datafix.fixes.References.BLOCK_STATE,
+            net.minecraft.util.datafix.fixes.BlockStateData.getTag(574), 1451,
+            net.minecraft.SharedConstants.getCurrentVersion().dataVersion().version()
+        )
+        assertEquals("minecraft:red_wool", upgraded.get("id").asString(""), upgraded.toString())
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:red_wool run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 14 say found")
+        )
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:red_wool run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ 35 14 say found")
+        )
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:oak_log[axis=x] run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ log 4 say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 99 say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ stone -1 say found"))
     }
     @Test
     fun `legacy execute runs at each target position with coordinates relative to it`() {

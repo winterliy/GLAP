@@ -1,7 +1,15 @@
 package dev.glap
 
+import net.minecraft.SharedConstants
+import net.minecraft.util.datafix.DataFixers
+import net.minecraft.util.datafix.fixes.BlockStateData
+import net.minecraft.util.datafix.fixes.EntityBlockStateFix
+import net.minecraft.util.datafix.fixes.References
+import java.util.concurrent.ConcurrentHashMap
+
 /** Rewrites supported legacy command forms before the current Brigadier tree parses them. */
 object LegacyCommandCompatibility {
+    private val legacyBlockStates = ConcurrentHashMap<Int, String>()
     /** Returns a current command string when [input] uses a supported legacy form. */
     @JvmStatic
     fun translate(input: String, sourceHasEntity: Boolean = false): String? {
@@ -53,14 +61,43 @@ object LegacyCommandCompatibility {
             val detectCoordinates = tokens.subList(6, 9).map { it.value }
             if (detectCoordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
             val block = tokens[9].value
-            // Other legacy block IDs may expand to several modern IDs for different metadata values.
-            if (block !in setOf("bedrock", "minecraft:bedrock") || tokens[10].value != "-1") return null
-            condition = " if block ${detectCoordinates.joinToString(" ")} $block"
+            val metadata = tokens[10].value.toIntOrNull() ?: return null
+            val mappedBlock = when (metadata) {
+                // A wildcard may cover several modern block IDs. Only map a known single-ID case here.
+                -1 -> if (block in setOf("bedrock", "minecraft:bedrock")) block else return null
+                in 0..15 -> translateLegacyBlockState(block, metadata) ?: return null
+                else -> return null
+            }
+            condition = " if block ${detectCoordinates.joinToString(" ")} $mappedBlock"
             commandStart = 11
         }
         val nested = tokens.drop(commandStart).joinToString(" ") { it.value }.removePrefix("/")
         val translated = translate(nested, sourceHasEntity = true) ?: nested
         return "execute as $target at @s positioned ${coordinates.joinToString(" ")}$condition run $translated"
+    }
+
+    private fun translateLegacyBlockState(block: String, metadata: Int): String? {
+        val oldName = if (':' in block) block else "minecraft:$block"
+        val id = block.toIntOrNull() ?: EntityBlockStateFix.getBlockId(oldName)
+        if (id !in 0..255 || (id == 0 && oldName != "minecraft:air" && block != "0")) return null
+        val state = (id shl 4) or metadata
+        legacyBlockStates[state]?.let { return it }
+        val mapped = convertLegacyBlockState(id, state) ?: return null
+        return legacyBlockStates.putIfAbsent(state, mapped) ?: mapped
+    }
+
+    private fun convertLegacyBlockState(id: Int, legacyState: Int): String? {
+        val flattened = BlockStateData.getTag(legacyState)
+        SharedConstants.tryDetectVersion()
+        val updated = DataFixers.getDataFixer().update(
+            References.BLOCK_STATE, flattened, 1451, SharedConstants.getCurrentVersion().dataVersion().version()
+        )
+        val name = updated.get("id").asString("")
+        if (name.isEmpty() || (id != 0 && name == "minecraft:air")) return null
+        val values = updated.get("properties").result().orElse(null)?.asMapOpt()?.result()?.orElse(null)
+            ?.map { entry -> "${entry.first.asString("")}=${entry.second.asString("")}" }?.sorted()?.toList() ?: emptyList()
+        if (values.isEmpty()) return name
+        return "$name${values.joinToString(",", "[", "]")}"
     }
 
     private fun translateRadiusSelector(target: String): String? {
