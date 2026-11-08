@@ -2,9 +2,205 @@ package dev.glap
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
+    @Test
+    fun `legacy wildcard detect preserves mixed fractional position and nested command origin`() {
+        val translated = LegacyCommandCompatibility.translate("execute @s ~1 ~ ~ detect ~.5 -1.5 2 stone -1 say found")
+        assertTrue(translated?.contains("positioned ~.5 -1.5 2.0 if predicate") == true)
+        assertTrue(translated?.endsWith("at @s positioned ~1 ~ ~ run say found") == true)
+    }
+    @Test
+    fun `legacy execute detect preserves fractional relative and floors absolute block coordinates`() {
+        assertEquals(
+            "execute as @s at @s positioned ~ ~ ~ if block ~.5 -2 2 minecraft:red_wool run say found",
+            LegacyCommandCompatibility.translate("execute @s ~ ~ ~ detect ~.5 -1.5 2.99 wool 14 say found")
+        )
+    }
+    @Test
+    fun `legacy selector entity types are upgraded to current names`() {
+        assertEquals(
+            "execute as @e[type=minecraft:zombified_piglin] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=PigZombie] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[type=!minecraft:iron_golem] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=!minecraft:villager_golem] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @e[type=Zombie] ~ ~ ~ say found"))
+    }
+    @Test
+    fun `legacy selector count preserves nearest furthest and unlimited selection`() {
+        assertEquals(
+            "execute as @e[type=pig,sort=furthest,limit=2] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=pig,c=-2] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[sort=nearest,limit=3] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[c=3] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[sort=nearest] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @p[c=0] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[type=pig,sort=random,limit=1] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @r[type=pig,c=-1] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @s at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @s[c=1] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @e[c=1] ~ ~ ~ say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @e[c=2,sort=random] ~ ~ ~ say found"))
+    }
+    @Test
+    fun `legacy execute supports signed and fractional coordinates`() {
+        assertEquals(
+            "execute as @s at @s positioned 1.0 .5 ~-.25 run say hello",
+            LegacyCommandCompatibility.translate("execute @s +1 .5 ~-.25 say hello")
+        )
+    }
+    @Test
+    fun `legacy selector game mode accepts numeric abbreviated and negated values`() {
+        assertEquals(
+            "execute as @a[gamemode=creative] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[m=1] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[gamemode=!spectator] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[m=!sp] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @a[m=invalid] ~ ~ ~ say found"))
+    }
+    @Test
+    fun `legacy selector score bounds translate to modern score ranges`() {
+        assertEquals(
+            "execute as @e[scores={deaths=..2,kills=3..9}] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[score_kills_min=3,score_kills=9,score_deaths=2] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[distance=..10,scores={points=-5..}] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[r=10,score_points_min=-5] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @e[score_points=bad] ~ ~ ~ say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @e[score_points=1,score_points=2] ~ ~ ~ say found"))
+    }
+    @Test
+    fun `legacy execute accepts UUID targets and names matching modern keywords`() {
+        val uuid = "12345678-1234-1234-1234-123456789abc"
+        assertEquals(
+            "execute as $uuid at @s positioned ~ ~ ~ run say hello",
+            LegacyCommandCompatibility.translate("execute $uuid ~ ~ ~ say hello")
+        )
+        assertEquals(
+            "execute as as at @s positioned ~ ~ ~ run say hello",
+            LegacyCommandCompatibility.translate("execute as ~ ~ ~ say hello")
+        )
+    }
+    @Test
+    fun `legacy execute absolute integer coordinates are not centered`() {
+        assertEquals(
+            "execute as @p at @s positioned 12.0 64 -3.0 run say hello",
+            LegacyCommandCompatibility.translate("execute @p 12 64 -3 say hello")
+        )
+    }
+    @Test
+    fun `legacy execute converts minimum and maximum selector radius`() {
+        assertEquals(
+            "execute as @e[distance=2..10] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[rm=2,r=10] ~ ~ ~ say found")
+        )
+    }
+
+    @Test
+    fun `legacy execute converts selector level and radius ranges together`() {
+        assertEquals(
+            "execute as @a[distance=2..10,level=5..20] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[rm=2,r=10,lm=5,l=20] ~ ~ ~ say found")
+        )
+    }
+
+    @Test
+    fun `legacy selector level bounds support one sided ranges and reject conflicts`() {
+        assertEquals(
+            "execute as @a[level=..20] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[l=20] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[level=5..] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[lm=5] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @a[l=20,level=1..10] ~ ~ ~ say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @a[l=abc] ~ ~ ~ say found"))
+    }
+    @Test
+    fun `legacy execute detects any state of a named block`() {
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:bedrock run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ minecraft:bedrock -1 say found")
+        )
+    }
+
+    @Test
+    fun `legacy execute wildcard detects block variants with state properties`() {
+        val command = LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ log -1 say found")
+        assertTrue(command?.contains("minecraft:oak_log") == true)
+        assertTrue(command?.contains("axis:\"x\"") == true)
+        assertTrue(command?.contains("axis:\"y\"") == true)
+    }
+
+    @Test
+    fun `legacy execute does not silently discard block metadata`() {
+        assertEquals(35, net.minecraft.util.datafix.fixes.EntityBlockStateFix.getBlockId("minecraft:wool"))
+        assertEquals("minecraft:red_wool", net.minecraft.util.datafix.fixes.BlockStateData.getTag(574).get("Name").asString(""))
+        net.minecraft.SharedConstants.tryDetectVersion()
+        val upgraded = net.minecraft.util.datafix.DataFixers.getDataFixer().update(
+            net.minecraft.util.datafix.fixes.References.BLOCK_STATE,
+            net.minecraft.util.datafix.fixes.BlockStateData.getTag(574), 1451,
+            net.minecraft.SharedConstants.getCurrentVersion().dataVersion().version()
+        )
+        assertEquals("minecraft:red_wool", upgraded.get("id").asString(""), upgraded.toString())
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:red_wool run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 14 say found")
+        )
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:red_wool run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ 35 14 say found")
+        )
+        assertEquals(
+            "execute as @a at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:oak_log[axis=x] run say found",
+            LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ log 4 say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 99 say found"))
+        val wildcard = LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ stone -1 say found")
+        assertTrue(wildcard?.contains("type:\"minecraft:location_check\"") == true)
+        assertTrue(wildcard?.contains("minecraft:granite") == true)
+        assertTrue(wildcard?.contains("minecraft:polished_andesite") == true)
+    }
+    @Test
+    fun `legacy execute runs at each target position with coordinates relative to it`() {
+        assertEquals(
+            "execute as @a at @s positioned ~ ~1 ~-2 run say hello world",
+            LegacyCommandCompatibility.translate("execute @a ~ ~1 ~-2 say hello world")
+        )
+    }
+
+    @Test
+    fun `legacy execute recursively translates nested legacy commands`() {
+        assertEquals(
+            "/execute as @p at @s positioned ~ ~ ~ run effect give @s minecraft:speed 10",
+            LegacyCommandCompatibility.translate("/execute @p ~ ~ ~ effect @s minecraft:speed 10")
+        )
+    }
+
+    @Test
+    fun `modern execute syntax remains untouched`() {
+        assertNull(LegacyCommandCompatibility.translate("execute as @a at @s positioned ~ ~ ~ run say hello"))
+    }
     @Test
     fun `rewrites blockdata into current data merge syntax`() {
         assertEquals(

@@ -1,0 +1,20 @@
+--- a/net/minecraft/commands/functions/CommandFunction.java
++++ b/net/minecraft/commands/functions/CommandFunction.java
+@@ -102,12 +102,14 @@
+     static <T extends ExecutionCommandSource<T>> UnboundEntryAction<T> parseCommand(
+         final CommandDispatcher<T> dispatcher, final T compilationContext, final StringReader input
+     ) throws CommandSyntaxException {
+-        ParseResults<T> parse = dispatcher.parse(input, compilationContext);
++        final String translated = dev.glap.LegacyCommandCompatibility.translate(input.getRemaining(), true); // GLAP
++        final StringReader commandInput = translated == null ? input : new StringReader(translated); // GLAP
++        ParseResults<T> parse = dispatcher.parse(commandInput, compilationContext);
+         Commands.validateParseResults(parse);
+-        Optional<ContextChain<T>> commandChain = ContextChain.tryFlatten(parse.getContext().build(input.getString()));
++        Optional<ContextChain<T>> commandChain = ContextChain.tryFlatten(parse.getContext().build(commandInput.getString())); // GLAP
+         if (commandChain.isEmpty()) {
+             throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(parse.getReader());
+         } else {
+-            return new BuildContexts.Unbound<>(input.getString(), commandChain.get());
++            return new BuildContexts.Unbound<>(commandInput.getString(), commandChain.get()); // GLAP
+         }
+     }
