@@ -138,16 +138,21 @@ object LegacyCommandCompatibility {
         val contents = target.substringAfter('[').dropLast(1)
         if (contents.any { it in "\"'{}[]" }) return target
         val arguments = contents.split(',')
-        val minimum = arguments.filter { it.startsWith("rm=") }
-        val maximum = arguments.filter { it.startsWith("r=") }
-        if (minimum.isEmpty() && maximum.isEmpty()) return target
-        if (minimum.size > 1 || maximum.size > 1) return null
-        val low = minimum.singleOrNull()?.substringAfter('=') ?: ""
-        val high = maximum.singleOrNull()?.substringAfter('=') ?: ""
-        if ((low.isNotEmpty() && !low.matches(Regex("\\d+"))) || (high.isNotEmpty() && !high.matches(Regex("\\d+")))) return null
-        if ((minimum.isNotEmpty() && low.isEmpty()) || (maximum.isNotEmpty() && high.isEmpty())) return null
-        val remaining = arguments.filterNot { it.startsWith("rm=") || it.startsWith("r=") }.filter { it.isNotEmpty() }
-        return target.substringBefore('[') + (remaining + "distance=$low..$high").joinToString(",", "[", "]")
+        val converted = mutableListOf<String>()
+        val legacyKeys = setOf("rm", "r", "lm", "l")
+        for ((minimumKey, maximumKey, destination) in listOf(Triple("rm", "r", "distance"), Triple("lm", "l", "level"))) {
+            val minimum = arguments.filter { it.substringBefore('=') == minimumKey }
+            val maximum = arguments.filter { it.substringBefore('=') == maximumKey }
+            if (minimum.isEmpty() && maximum.isEmpty()) continue
+            if (minimum.size > 1 || maximum.size > 1 || arguments.any { it.substringBefore('=') == destination }) return null
+            val low = minimum.singleOrNull()?.substringAfter('=', "") ?: ""
+            val high = maximum.singleOrNull()?.substringAfter('=', "") ?: ""
+            if ((minimum.isNotEmpty() && !low.matches(Regex("\\d+"))) || (maximum.isNotEmpty() && !high.matches(Regex("\\d+")))) return null
+            converted += "$destination=$low..$high"
+        }
+        if (converted.isEmpty()) return target
+        val remaining = arguments.filterNot { it.substringBefore('=') in legacyKeys }.filter { it.isNotEmpty() }
+        return target.substringBefore('[') + (remaining + converted).joinToString(",", "[", "]")
     }
 
     private fun translateEffect(tokens: List<Token>): String? {

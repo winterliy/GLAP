@@ -20,6 +20,28 @@ class LegacyCommandCompatibilityTest {
             LegacyCommandCompatibility.translate("execute @e[rm=2,r=10] ~ ~ ~ say found")
         )
     }
+
+    @Test
+    fun `legacy execute converts selector level and radius ranges together`() {
+        assertEquals(
+            "execute as @a[distance=2..10,level=5..20] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[rm=2,r=10,lm=5,l=20] ~ ~ ~ say found")
+        )
+    }
+
+    @Test
+    fun `legacy selector level bounds support one sided ranges and reject conflicts`() {
+        assertEquals(
+            "execute as @a[level=..20] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[l=20] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @a[level=5..] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @a[lm=5] ~ ~ ~ say found")
+        )
+        assertNull(LegacyCommandCompatibility.translate("execute @a[l=20,level=1..10] ~ ~ ~ say found"))
+        assertNull(LegacyCommandCompatibility.translate("execute @a[l=abc] ~ ~ ~ say found"))
+    }
     @Test
     fun `legacy execute detects any state of a named block`() {
         assertEquals(
