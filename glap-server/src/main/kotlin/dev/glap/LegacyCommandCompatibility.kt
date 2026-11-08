@@ -70,7 +70,16 @@ object LegacyCommandCompatibility {
                     if (block in setOf("bedrock", "minecraft:bedrock")) {
                         " if block ${detectCoordinates.joinToString(" ")} $block"
                     } else {
-                        " if predicate ${translateLegacyWildcardBlock(block, detectCoordinates) ?: return null}"
+                        val direct = translateLegacyWildcardBlock(block, detectCoordinates)
+                        if (direct != null) {
+                            " if predicate $direct"
+                        } else {
+                            val detectPosition = tokens.subList(6, 9).mapIndexed { index, token ->
+                                normalizeLegacyCoordinate(token.value, centerCorrect = index != 1) ?: return null
+                            }
+                            val predicate = translateLegacyWildcardBlock(block, listOf("~", "~", "~")) ?: return null
+                            " positioned ${detectPosition.joinToString(" ")} if predicate $predicate at @s positioned ${positionedCoordinates.joinToString(" ")}"
+                        }
                     }
                 }
                 metadata.toIntOrNull() in 0..15 -> {

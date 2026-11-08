@@ -7,6 +7,12 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy wildcard detect preserves mixed fractional position and nested command origin`() {
+        val translated = LegacyCommandCompatibility.translate("execute @s ~1 ~ ~ detect ~.5 -1.5 2 stone -1 say found")
+        assertTrue(translated?.contains("positioned ~.5 -1.5 2.0 if predicate") == true)
+        assertTrue(translated?.endsWith("at @s positioned ~1 ~ ~ run say found") == true)
+    }
+    @Test
     fun `legacy execute detect preserves fractional relative and floors absolute block coordinates`() {
         assertEquals(
             "execute as @s at @s positioned ~ ~ ~ if block ~.5 -2 2 minecraft:red_wool run say found",
