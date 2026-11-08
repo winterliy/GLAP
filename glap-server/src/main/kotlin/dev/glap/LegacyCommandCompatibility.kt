@@ -51,17 +51,16 @@ object LegacyCommandCompatibility {
         val originalTarget = tokens[1].value
         if (!originalTarget.matches(Regex("@[pares](?:\\[.*])?|[A-Za-z0-9_]{1,16}|[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}"))) return null
         val target = translateLegacySelector(originalTarget) ?: return null
-        val coordinates = tokens.subList(2, 5).map { it.value }
-        if (coordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
-        val positionedCoordinates = coordinates.mapIndexed { index, coordinate ->
-            if (index != 1 && !coordinate.startsWith('~') && '.' !in coordinate) "$coordinate.0" else coordinate
+        val positionedCoordinates = tokens.subList(2, 5).mapIndexed { index, token ->
+            normalizeLegacyCoordinate(token.value, centerCorrect = index != 1) ?: return null
         }
         var commandStart = 5
         var condition = ""
         if (tokens[5].value == "detect") {
             if (tokens.size < 12) return null
             val detectCoordinates = tokens.subList(6, 9).map { it.value }
-            if (detectCoordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
+            // Current block-position arguments accept integers only; fractional detect offsets require separate handling.
+            if (detectCoordinates.any { !it.matches(Regex("(?:~(?:-?\\d+)?|-?\\d+)")) }) return null
             val block = tokens[9].value
             val metadata = tokens[10].value
             condition = when {
@@ -83,6 +82,16 @@ object LegacyCommandCompatibility {
         val nested = tokens.drop(commandStart).joinToString(" ") { it.value }.removePrefix("/")
         val translated = translate(nested, sourceHasEntity = true) ?: nested
         return "execute as $target at @s positioned ${positionedCoordinates.joinToString(" ")}$condition run $translated"
+    }
+
+    private fun normalizeLegacyCoordinate(coordinate: String, centerCorrect: Boolean): String? {
+        val relative = coordinate.startsWith('~')
+        val number = if (relative) coordinate.drop(1) else coordinate
+        if (relative && number.isEmpty()) return "~"
+        if (!number.matches(Regex("[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)"))) return null
+        var normalized = number.removePrefix("+")
+        if (!relative && centerCorrect && '.' !in normalized) normalized += ".0"
+        return (if (relative) "~" else "") + normalized
     }
 
     private fun translateLegacyWildcardBlock(block: String, coordinates: List<String>): String? {

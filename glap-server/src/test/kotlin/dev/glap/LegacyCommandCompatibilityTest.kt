@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy execute supports signed and fractional coordinates`() {
+        assertEquals(
+            "execute as @s at @s positioned 1.0 .5 ~-.25 run say hello",
+            LegacyCommandCompatibility.translate("execute @s +1 .5 ~-.25 say hello")
+        )
+    }
+    @Test
     fun `legacy selector game mode accepts numeric abbreviated and negated values`() {
         assertEquals(
             "execute as @a[gamemode=creative] at @s positioned ~ ~ ~ run say found",
