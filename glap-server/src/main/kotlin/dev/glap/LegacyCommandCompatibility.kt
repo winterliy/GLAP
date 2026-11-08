@@ -64,19 +64,39 @@ object LegacyCommandCompatibility {
             val detectCoordinates = tokens.subList(6, 9).map { it.value }
             if (detectCoordinates.any { !it.matches(Regex("(?:~(?:-?\\d+(?:\\.\\d+)?)?|-?\\d+(?:\\.\\d+)?)")) }) return null
             val block = tokens[9].value
-            val metadata = tokens[10].value.toIntOrNull() ?: return null
-            val mappedBlock = when (metadata) {
-                // A wildcard may cover several modern block IDs. Only map a known single-ID case here.
-                -1 -> if (block in setOf("bedrock", "minecraft:bedrock")) block else return null
-                in 0..15 -> translateLegacyBlockState(block, metadata) ?: return null
+            val metadata = tokens[10].value
+            condition = when {
+                metadata == "-1" || metadata == "*" -> {
+                    if (block in setOf("bedrock", "minecraft:bedrock")) {
+                        " if block ${detectCoordinates.joinToString(" ")} $block"
+                    } else {
+                        " if predicate ${translateLegacyWildcardBlock(block, detectCoordinates) ?: return null}"
+                    }
+                }
+                metadata.toIntOrNull() in 0..15 -> {
+                    val mappedBlock = translateLegacyBlockState(block, metadata.toInt()) ?: return null
+                    " if block ${detectCoordinates.joinToString(" ")} $mappedBlock"
+                }
                 else -> return null
             }
-            condition = " if block ${detectCoordinates.joinToString(" ")} $mappedBlock"
             commandStart = 11
         }
         val nested = tokens.drop(commandStart).joinToString(" ") { it.value }.removePrefix("/")
         val translated = translate(nested, sourceHasEntity = true) ?: nested
         return "execute as $target at @s positioned ${positionedCoordinates.joinToString(" ")}$condition run $translated"
+    }
+
+    private fun translateLegacyWildcardBlock(block: String, coordinates: List<String>): String? {
+        val offsets = coordinates.map { coordinate ->
+            if (!coordinate.startsWith('~')) return null
+            val offset = coordinate.drop(1)
+            if (offset.isEmpty()) 0 else offset.toIntOrNull() ?: return null
+        }
+        val states = (0..15).map { metadata -> translateLegacyBlockState(block, metadata) ?: return null }.distinct()
+        // A plain block list cannot encode state properties; reject those instead of broadening the match.
+        if (states.any { '[' in it }) return null
+        val names = states.sorted().joinToString(",") { "\"$it\"" }
+        return "{type:\"minecraft:location_check\",offsetX:${offsets[0]},offsetY:${offsets[1]},offsetZ:${offsets[2]},predicate:{block:{blocks:[$names]}}}"
     }
 
     private fun translateLegacyBlockState(block: String, metadata: Int): String? {

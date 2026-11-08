@@ -2,6 +2,7 @@ package dev.glap
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
@@ -51,7 +52,10 @@ class LegacyCommandCompatibilityTest {
             LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ log 4 say found")
         )
         assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ wool 99 say found"))
-        assertNull(LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ stone -1 say found"))
+        val wildcard = LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ stone -1 say found")
+        assertTrue(wildcard?.contains("type:\"minecraft:location_check\"") == true)
+        assertTrue(wildcard?.contains("minecraft:granite") == true)
+        assertTrue(wildcard?.contains("minecraft:polished_andesite") == true)
     }
     @Test
     fun `legacy execute runs at each target position with coordinates relative to it`() {
