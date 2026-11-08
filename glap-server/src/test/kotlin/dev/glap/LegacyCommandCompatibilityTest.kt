@@ -7,6 +7,13 @@ import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
     @Test
+    fun `legacy execute detect preserves fractional relative and floors absolute block coordinates`() {
+        assertEquals(
+            "execute as @s at @s positioned ~ ~ ~ if block ~.5 -2 2 minecraft:red_wool run say found",
+            LegacyCommandCompatibility.translate("execute @s ~ ~ ~ detect ~.5 -1.5 2.99 wool 14 say found")
+        )
+    }
+    @Test
     fun `legacy selector entity types are upgraded to current names`() {
         assertEquals(
             "execute as @e[type=minecraft:zombified_piglin] at @s positioned ~ ~ ~ run say found",

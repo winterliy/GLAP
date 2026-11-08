@@ -62,9 +62,7 @@ object LegacyCommandCompatibility {
         var condition = ""
         if (tokens[5].value == "detect") {
             if (tokens.size < 12) return null
-            val detectCoordinates = tokens.subList(6, 9).map { it.value }
-            // Current block-position arguments accept integers only; fractional detect offsets require separate handling.
-            if (detectCoordinates.any { !it.matches(Regex("(?:~(?:-?\\d+)?|-?\\d+)")) }) return null
+            val detectCoordinates = tokens.subList(6, 9).map { normalizeLegacyBlockCoordinate(it.value) ?: return null }
             val block = tokens[9].value
             val metadata = tokens[10].value
             condition = when {
@@ -96,6 +94,14 @@ object LegacyCommandCompatibility {
         var normalized = number.removePrefix("+")
         if (!relative && centerCorrect && '.' !in normalized) normalized += ".0"
         return (if (relative) "~" else "") + normalized
+    }
+
+    private fun normalizeLegacyBlockCoordinate(coordinate: String): String? {
+        val normalized = normalizeLegacyCoordinate(coordinate, centerCorrect = false) ?: return null
+        if (normalized.startsWith('~')) return normalized
+        val number = normalized.toDoubleOrNull() ?: return null
+        if (!number.isFinite() || number < Int.MIN_VALUE || number > Int.MAX_VALUE) return null
+        return kotlin.math.floor(number).toInt().toString()
     }
 
     private fun translateLegacyWildcardBlock(block: String, coordinates: List<String>): String? {
