@@ -29,6 +29,14 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `legacy execute wildcard detects block variants with state properties`() {
+        val command = LegacyCommandCompatibility.translate("execute @a ~ ~ ~ detect ~ ~-1 ~ log -1 say found")
+        assertTrue(command?.contains("minecraft:oak_log") == true)
+        assertTrue(command?.contains("axis:\"x\"") == true)
+        assertTrue(command?.contains("axis:\"y\"") == true)
+    }
+
+    @Test
     fun `legacy execute does not silently discard block metadata`() {
         assertEquals(35, net.minecraft.util.datafix.fixes.EntityBlockStateFix.getBlockId("minecraft:wool"))
         assertEquals("minecraft:red_wool", net.minecraft.util.datafix.fixes.BlockStateData.getTag(574).get("Name").asString(""))

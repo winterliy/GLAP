@@ -93,10 +93,20 @@ object LegacyCommandCompatibility {
             if (offset.isEmpty()) 0 else offset.toIntOrNull() ?: return null
         }
         val states = (0..15).map { metadata -> translateLegacyBlockState(block, metadata) ?: return null }.distinct()
-        // A plain block list cannot encode state properties; reject those instead of broadening the match.
-        if (states.any { '[' in it }) return null
-        val names = states.sorted().joinToString(",") { "\"$it\"" }
-        return "{type:\"minecraft:location_check\",offsetX:${offsets[0]},offsetY:${offsets[1]},offsetZ:${offsets[2]},predicate:{block:{blocks:[$names]}}}"
+        val prefix = "type:\"minecraft:location_check\",offsetX:${offsets[0]},offsetY:${offsets[1]},offsetZ:${offsets[2]}"
+        if (states.none { '[' in it }) {
+            val names = states.sorted().joinToString(",") { "\"$it\"" }
+            return "{$prefix,predicate:{block:{blocks:[$names]}}}"
+        }
+        val terms = states.sorted().joinToString(",") { state ->
+            val name = state.substringBefore('[')
+            val properties = state.substringAfter('[', "").removeSuffix("]")
+            val stateField = if (properties.isEmpty()) "" else properties.split(',').joinToString(",", ",state:{", "}") {
+                "${it.substringBefore('=')}:\"${it.substringAfter('=')}\""
+            }
+            "{$prefix,predicate:{block:{blocks:[\"$name\"]$stateField}}}"
+        }
+        return "{type:\"minecraft:any_of\",terms:[$terms]}"
     }
 
     private fun translateLegacyBlockState(block: String, metadata: Int): String? {
