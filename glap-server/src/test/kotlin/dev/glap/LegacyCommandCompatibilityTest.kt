@@ -322,6 +322,16 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `translates legacy numeric enchantment IDs`() {
+        assertEquals("enchant @s minecraft:protection 4", LegacyCommandCompatibility.translate("enchant @s 0 4"))
+        assertEquals("enchant Alex minecraft:sweeping_edge", LegacyCommandCompatibility.translate("enchant Alex 22"))
+        assertEquals("enchant @p minecraft:vanishing_curse 1", LegacyCommandCompatibility.translate("enchant @p 71 1"))
+        assertNull(LegacyCommandCompatibility.translate("enchant @s 11"))
+        assertNull(LegacyCommandCompatibility.translate("enchant @s minecraft:sharpness 2"))
+        assertEquals("execute as @s at @s positioned ~ ~ ~ run enchant @s minecraft:sharpness 3", LegacyCommandCompatibility.translate("execute @s ~ ~ ~ enchant @s 16 3"))
+    }
+
+    @Test
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }

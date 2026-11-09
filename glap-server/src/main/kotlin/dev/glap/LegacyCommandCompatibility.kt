@@ -20,6 +20,15 @@ object LegacyCommandCompatibility {
         "invisibility", "blindness", "night_vision", "hunger", "weakness", "poison", "wither", "health_boost",
         "absorption", "saturation", "glowing", "levitation", "luck", "unluck"
     )
+    private val legacyEnchantments = mapOf(
+        0 to "protection", 1 to "fire_protection", 2 to "feather_falling", 3 to "blast_protection",
+        4 to "projectile_protection", 5 to "respiration", 6 to "aqua_affinity", 7 to "thorns",
+        8 to "depth_strider", 9 to "frost_walker", 10 to "binding_curse", 16 to "sharpness",
+        17 to "smite", 18 to "bane_of_arthropods", 19 to "knockback", 20 to "fire_aspect",
+        21 to "looting", 22 to "sweeping_edge", 32 to "efficiency", 33 to "silk_touch",
+        34 to "unbreaking", 35 to "fortune", 48 to "power", 49 to "punch", 50 to "flame",
+        51 to "infinity", 61 to "luck_of_the_sea", 62 to "lure", 70 to "mending", 71 to "vanishing_curse"
+    )
     /** Returns a current command string when [input] uses a supported legacy form. */
     @JvmStatic
     fun translate(input: String, sourceHasEntity: Boolean = false): String? {
@@ -45,6 +54,14 @@ object LegacyCommandCompatibility {
                 if (!amount.matches(Regex("-?\\d+"))) return null
                 val target = tokens.getOrNull(2)?.value ?: if (sourceHasEntity) "@s" else return "experience add"
                 "experience add $target $amount ${if (levels) "levels" else "points"}"
+            }
+            "enchant" -> {
+                if (tokens.size !in 3..4) return null
+                val id = tokens[2].value.toIntOrNull() ?: return null
+                val enchantment = legacyEnchantments[id] ?: return null
+                val level = tokens.getOrNull(3)?.value
+                if (level != null && level.toIntOrNull() == null) return null
+                "enchant ${tokens[1].value} minecraft:$enchantment" + (level?.let { " $it" } ?: "")
             }
             "effect" -> translateEffect(tokens) ?: return null
             "replaceitem" -> translateReplaceItem(tokens) ?: return null
