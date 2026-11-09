@@ -347,6 +347,17 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `translates legacy difficulty aliases`() {
+        assertEquals("difficulty peaceful", LegacyCommandCompatibility.translate("difficulty 0"))
+        assertEquals("difficulty easy", LegacyCommandCompatibility.translate("difficulty E"))
+        assertEquals("difficulty normal", LegacyCommandCompatibility.translate("difficulty 2"))
+        assertEquals("difficulty hard", LegacyCommandCompatibility.translate("difficulty HARD"))
+        assertNull(LegacyCommandCompatibility.translate("difficulty hard"))
+        assertNull(LegacyCommandCompatibility.translate("difficulty 4"))
+        assertNull(LegacyCommandCompatibility.translate("difficulty"))
+    }
+
+    @Test
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }
