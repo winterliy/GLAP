@@ -1,11 +1,22 @@
 package dev.glap
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class LegacyCommandCompatibilityTest {
+    @Test
+    fun `legacy grass wildcard does not restrict snowy state`() {
+        val translated = LegacyCommandCompatibility.translate("execute @s ~ ~ ~ detect ~ ~-1 ~ grass -1 say found")
+        assertTrue(translated?.contains("minecraft:grass_block") == true)
+        assertFalse(translated!!.contains("snowy:\"false\""))
+        assertEquals(
+            "execute as @s at @s positioned ~ ~ ~ if block ~ ~-1 ~ minecraft:grass_block run say found",
+            LegacyCommandCompatibility.translate("execute @s ~ ~ ~ detect ~ ~-1 ~ grass 0 say found")
+        )
+    }
     @Test
     fun `legacy wildcard detect preserves mixed fractional position and nested command origin`() {
         val translated = LegacyCommandCompatibility.translate("execute @s ~1 ~ ~ detect ~.5 -1.5 2 stone -1 say found")

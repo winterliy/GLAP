@@ -155,6 +155,8 @@ object LegacyCommandCompatibility {
         val name = updated.get("id").asString("")
         if (name.isEmpty() || (id != 0 && name == "minecraft:air")) return null
         val values = updated.get("properties").result().orElse(null)?.asMapOpt()?.result()?.orElse(null)
+            // These states are not encoded in 1.12 block metadata and must not narrow a legacy match.
+            ?.filter { entry -> entry.first.asString("") !in setOf("snowy", "waterlogged") }
             ?.map { entry -> "${entry.first.asString("")}=${entry.second.asString("")}" }?.sorted()?.toList() ?: emptyList()
         if (values.isEmpty()) return name
         return "$name${values.joinToString(",", "[", "]")}"
