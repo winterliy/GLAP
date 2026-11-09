@@ -358,6 +358,14 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `translates legacy selectors in kill commands`() {
+        assertEquals("kill @e[distance=..5]", LegacyCommandCompatibility.translate("kill @e[r=5]"))
+        assertEquals("execute as @s at @s positioned ~ ~ ~ run kill @e[distance=2..5]", LegacyCommandCompatibility.translate("execute @s ~ ~ ~ kill @e[rm=2,r=5]"))
+        assertNull(LegacyCommandCompatibility.translate("kill @e[distance=..5]"))
+        assertNull(LegacyCommandCompatibility.translate("kill"))
+    }
+
+    @Test
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }

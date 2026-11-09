@@ -55,6 +55,13 @@ object LegacyCommandCompatibility {
                 val target = tokens.getOrNull(2)?.value ?: if (sourceHasEntity) "@s" else return "experience add"
                 "experience add $target $amount ${if (levels) "levels" else "points"}"
             }
+            "kill" -> {
+                if (tokens.size != 2 || !tokens[1].value.startsWith('@')) return null
+                val original = tokens[1].value
+                val target = translateLegacySelector(original) ?: return null
+                if (target == original) return null
+                "kill $target"
+            }
             "difficulty" -> {
                 if (tokens.size != 2) return null
                 val raw = tokens[1].value
