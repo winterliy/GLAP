@@ -14,6 +14,12 @@ import java.util.concurrent.ConcurrentHashMap
 object LegacyCommandCompatibility {
     private val legacyBlockStates = ConcurrentHashMap<Int, String>()
     private val legacyEntityTypes = ConcurrentHashMap<String, String>()
+    private val legacyEffectIds = listOf(
+        "speed", "slowness", "haste", "mining_fatigue", "strength", "instant_health", "instant_damage",
+        "jump_boost", "nausea", "regeneration", "resistance", "fire_resistance", "water_breathing",
+        "invisibility", "blindness", "night_vision", "hunger", "weakness", "poison", "wither", "health_boost",
+        "absorption", "saturation", "glowing", "levitation", "luck", "unluck"
+    )
     /** Returns a current command string when [input] uses a supported legacy form. */
     @JvmStatic
     fun translate(input: String, sourceHasEntity: Boolean = false): String? {
@@ -275,12 +281,14 @@ object LegacyCommandCompatibility {
         if (tokens.size !in 3..6) return null
 
         val target = tokens[1].value
-        val effect = tokens[2].value
-        if (effect.matches(Regex("\\d+"))) return null
+        val rawEffect = tokens[2].value
+        val effect = if (rawEffect.matches(Regex("\\d+"))) {
+            val id = rawEffect.toIntOrNull() ?: return null
+            "minecraft:${legacyEffectIds.getOrNull(id - 1) ?: return null}"
+        } else rawEffect
 
         val duration = tokens.getOrNull(3)?.value?.toIntOrNull()
         if (tokens.size >= 4 && duration == null) return null
-        if (duration == 0) return if (tokens.size == 4) "effect clear $target $effect" else null
         if (duration != null && duration < 0 && duration != -1) return null
         if (duration != null && duration > 1_000_000) return null
 
@@ -288,6 +296,8 @@ object LegacyCommandCompatibility {
         if (tokens.size >= 5 && amplifier !in 0..255) return null
         val hideParticles = tokens.getOrNull(5)?.value?.lowercase()
         if (tokens.size == 6 && hideParticles !in setOf("true", "false")) return null
+
+        if (duration == 0) return "effect clear $target $effect"
 
         val parts = mutableListOf("effect", "give", target, effect)
         if (duration == -1) parts += "infinite" else if (duration != null) parts += duration.toString()

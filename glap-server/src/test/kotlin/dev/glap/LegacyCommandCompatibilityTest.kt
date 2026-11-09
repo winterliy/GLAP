@@ -293,9 +293,25 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
-    fun `effect zero duration clears and numeric ids stay unsupported`() {
+    fun `effect zero duration clears and numeric ids map to legacy effects`() {
         assertEquals("effect clear @p minecraft:speed", LegacyCommandCompatibility.translate("effect @p minecraft:speed 0"))
-        assertNull(LegacyCommandCompatibility.translate("effect @p 1 30 0"))
+        assertEquals("effect give @p minecraft:speed 30 0", LegacyCommandCompatibility.translate("effect @p 1 30 0"))
+        assertEquals("effect clear @p minecraft:unluck", LegacyCommandCompatibility.translate("effect @p 27 0 3 true"))
+        assertNull(LegacyCommandCompatibility.translate("effect @p 28 30 0"))
+        assertNull(LegacyCommandCompatibility.translate("effect @p 0 30 0"))
+        assertEquals(
+            "execute as @s at @s positioned ~ ~ ~ run effect give @s minecraft:jump_boost 10",
+            LegacyCommandCompatibility.translate("execute @s ~ ~ ~ effect @s 8 10")
+        )
+        val names = listOf(
+            "speed", "slowness", "haste", "mining_fatigue", "strength", "instant_health", "instant_damage",
+            "jump_boost", "nausea", "regeneration", "resistance", "fire_resistance", "water_breathing",
+            "invisibility", "blindness", "night_vision", "hunger", "weakness", "poison", "wither", "health_boost",
+            "absorption", "saturation", "glowing", "levitation", "luck", "unluck"
+        )
+        names.forEachIndexed { index, name ->
+            assertEquals("effect give @s minecraft:$name", LegacyCommandCompatibility.translate("effect @s ${index + 1}"))
+        }
     }
 
     @Test

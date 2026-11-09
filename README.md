@@ -31,11 +31,11 @@ Paper 플러그인을 그대로 쓸 수 있고, GLAP만의 설정과 명령어�
   - `/blockdata <x> <y> <z> <snbt>` → `/data merge block ...`
   - `/entitydata <대상> <snbt>` → `/data merge entity ...`
   - `/xp <양>[L] [대상]` → 경험치 포인트 또는 레벨 추가
-  - `/effect <대상> clear`와 이름 기반 효과 부여 문법. `0`초는 제거, `-1`초는 무기한 지속으로 변환
+  - `/effect <대상> clear`와 이름 및 1.12.2 숫자 ID(1~27) 기반 효과 부여 문법. `0`초는 제거, `-1`초는 무기한 지속으로 변환
   - `/replaceitem`의 개체·블록 대상 문법과 `slot.*` 슬롯 이름
 - 위 명령의 지원 형식은 격리 서버에서 실행 확인했고, 빌드와 릴리스 검증을 마쳤어요. [v3.1.0 릴리스](https://github.com/winterliy/GLAP/releases/tag/v3.1.0)
 
-`/xp`, `/effect`, `/replaceitem`은 일부 문법만 지원해요. 콘솔 실행, 숫자형 ID, 아이템 내구도 메타데이터, 구형 아이템 NBT 등 아래 미완료 항목은 아직 호환되지 않을 수 있어요.
+`/xp`, `/effect`, `/replaceitem`은 일부 문법만 지원해요. 콘솔 실행, 일부 숫자형 ID, 아이템 내구도 메타데이터, 구형 아이템 NBT 등 아래 미완료 항목은 아직 호환되지 않을 수 있어요.
 
 #### 미완료 명령어와 호환 작업
 
