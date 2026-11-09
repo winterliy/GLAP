@@ -57,8 +57,12 @@ object LegacyCommandCompatibility {
             }
             "enchant" -> {
                 if (tokens.size !in 3..4) return null
-                val id = tokens[2].value.toIntOrNull() ?: return null
-                val enchantment = legacyEnchantments[id] ?: return null
+                val rawEnchantment = tokens[2].value
+                val enchantment = if (rawEnchantment == "sweeping" || rawEnchantment == "minecraft:sweeping") {
+                    "sweeping_edge"
+                } else {
+                    legacyEnchantments[rawEnchantment.toIntOrNull() ?: return null] ?: return null
+                }
                 val level = tokens.getOrNull(3)?.value
                 if (level != null && level.toIntOrNull() == null) return null
                 "enchant ${tokens[1].value} minecraft:$enchantment" + (level?.let { " $it" } ?: "")

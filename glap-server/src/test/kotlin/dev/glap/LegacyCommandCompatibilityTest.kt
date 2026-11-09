@@ -328,6 +328,9 @@ class LegacyCommandCompatibilityTest {
         assertEquals("enchant @p minecraft:vanishing_curse 1", LegacyCommandCompatibility.translate("enchant @p 71 1"))
         assertNull(LegacyCommandCompatibility.translate("enchant @s 11"))
         assertNull(LegacyCommandCompatibility.translate("enchant @s minecraft:sharpness 2"))
+        assertEquals("enchant @s minecraft:sweeping_edge 2", LegacyCommandCompatibility.translate("enchant @s sweeping 2"))
+        assertEquals("enchant @s minecraft:sweeping_edge", LegacyCommandCompatibility.translate("enchant @s minecraft:sweeping"))
+        assertNull(LegacyCommandCompatibility.translate("enchant @s minecraft:sweeping_edge"))
         assertEquals("execute as @s at @s positioned ~ ~ ~ run enchant @s minecraft:sharpness 3", LegacyCommandCompatibility.translate("execute @s ~ ~ ~ enchant @s 16 3"))
     }
 
