@@ -315,6 +315,13 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `legacy effect ignores trailing arguments and treats non true particle flag as false`() {
+        assertEquals("effect clear Alex", LegacyCommandCompatibility.translate("effect Alex clear ignored extra"))
+        assertEquals("effect give @s minecraft:speed 10 0 false", LegacyCommandCompatibility.translate("effect @s 1 10 0 anything ignored"))
+        assertEquals("effect give @s minecraft:speed 10 0 true", LegacyCommandCompatibility.translate("effect @s 1 10 0 TRUE ignored"))
+    }
+
+    @Test
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }

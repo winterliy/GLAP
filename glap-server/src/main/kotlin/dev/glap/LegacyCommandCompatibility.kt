@@ -277,8 +277,8 @@ object LegacyCommandCompatibility {
     }
 
     private fun translateEffect(tokens: List<Token>): String? {
-        if (tokens.size == 3 && tokens[2].value == "clear") return "effect clear ${tokens[1].value}"
-        if (tokens.size !in 3..6) return null
+        if (tokens.size >= 3 && tokens[2].value == "clear") return "effect clear ${tokens[1].value}"
+        if (tokens.size < 3) return null
 
         val target = tokens[1].value
         val rawEffect = tokens[2].value
@@ -294,8 +294,7 @@ object LegacyCommandCompatibility {
 
         val amplifier = tokens.getOrNull(4)?.value?.toIntOrNull()
         if (tokens.size >= 5 && amplifier !in 0..255) return null
-        val hideParticles = tokens.getOrNull(5)?.value?.lowercase()
-        if (tokens.size == 6 && hideParticles !in setOf("true", "false")) return null
+        val hideParticles = tokens.getOrNull(5)?.value?.equals("true", ignoreCase = true)?.toString()
 
         if (duration == 0) return "effect clear $target $effect"
 
