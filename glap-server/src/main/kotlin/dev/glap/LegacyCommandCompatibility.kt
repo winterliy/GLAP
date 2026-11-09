@@ -52,7 +52,8 @@ object LegacyCommandCompatibility {
                 val levels = legacyAmount.endsWith('L', ignoreCase = true)
                 val amount = if (levels) legacyAmount.dropLast(1) else legacyAmount
                 if (!amount.matches(Regex("-?\\d+"))) return null
-                val target = tokens.getOrNull(2)?.value ?: if (sourceHasEntity) "@s" else return "experience add"
+                val target = tokens.getOrNull(2)?.value?.let { translateLegacySelector(it) ?: return null }
+                    ?: if (sourceHasEntity) "@s" else return "experience add"
                 "experience add $target $amount ${if (levels) "levels" else "points"}"
             }
             "kill" -> {
@@ -329,10 +330,13 @@ object LegacyCommandCompatibility {
     }
 
     private fun translateEffect(tokens: List<Token>): String? {
-        if (tokens.size >= 3 && tokens[2].value == "clear") return "effect clear ${tokens[1].value}"
+        if (tokens.size >= 3 && tokens[2].value == "clear") {
+            val target = translateLegacySelector(tokens[1].value) ?: return null
+            return "effect clear $target"
+        }
         if (tokens.size < 3) return null
 
-        val target = tokens[1].value
+        val target = translateLegacySelector(tokens[1].value) ?: return null
         val rawEffect = tokens[2].value
         val effect = if (rawEffect.matches(Regex("\\d+"))) {
             val id = rawEffect.toIntOrNull() ?: return null

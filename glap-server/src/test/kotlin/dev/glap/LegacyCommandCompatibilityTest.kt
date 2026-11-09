@@ -366,6 +366,13 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `translates legacy selectors for effect and experience targets`() {
+        assertEquals("effect give @a[distance=..5] minecraft:speed 10", LegacyCommandCompatibility.translate("effect @a[r=5] 1 10"))
+        assertEquals("effect clear @a[distance=..5]", LegacyCommandCompatibility.translate("effect @a[r=5] clear"))
+        assertEquals("experience add @a[distance=2..] 5 points", LegacyCommandCompatibility.translate("xp 5 @a[rm=2]"))
+    }
+
+    @Test
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }
