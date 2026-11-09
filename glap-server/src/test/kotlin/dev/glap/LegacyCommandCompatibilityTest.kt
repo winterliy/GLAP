@@ -335,6 +335,18 @@ class LegacyCommandCompatibilityTest {
     }
 
     @Test
+    fun `translates legacy numeric and shorthand game modes`() {
+        assertEquals("gamemode survival", LegacyCommandCompatibility.translate("gamemode 0"))
+        assertEquals("gamemode creative Alex", LegacyCommandCompatibility.translate("gamemode c Alex"))
+        assertEquals("gamemode adventure @a", LegacyCommandCompatibility.translate("gamemode 2 @a"))
+        assertEquals("gamemode spectator @s", LegacyCommandCompatibility.translate("gamemode sp @s"))
+        assertEquals("defaultgamemode creative", LegacyCommandCompatibility.translate("defaultgamemode 1"))
+        assertNull(LegacyCommandCompatibility.translate("gamemode creative"))
+        assertNull(LegacyCommandCompatibility.translate("gamemode 4"))
+        assertNull(LegacyCommandCompatibility.translate("defaultgamemode 0 Alex"))
+    }
+
+    @Test
     fun `rewrites infinite effect duration`() {
         assertEquals("effect give @s minecraft:strength infinite 1 true", LegacyCommandCompatibility.translate("effect @s minecraft:strength -1 1 true"))
     }

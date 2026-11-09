@@ -55,6 +55,17 @@ object LegacyCommandCompatibility {
                 val target = tokens.getOrNull(2)?.value ?: if (sourceHasEntity) "@s" else return "experience add"
                 "experience add $target $amount ${if (levels) "levels" else "points"}"
             }
+            "gamemode", "defaultgamemode" -> {
+                if (tokens.size !in 2..(if (root == "gamemode") 3 else 2)) return null
+                val mode = when (tokens[1].value) {
+                    "0", "s" -> "survival"
+                    "1", "c" -> "creative"
+                    "2", "a" -> "adventure"
+                    "3", "sp" -> "spectator"
+                    else -> return null
+                }
+                "$root $mode" + (tokens.getOrNull(2)?.let { " ${it.value}" } ?: "")
+            }
             "enchant" -> {
                 if (tokens.size !in 3..4) return null
                 val rawEnchantment = tokens[2].value
