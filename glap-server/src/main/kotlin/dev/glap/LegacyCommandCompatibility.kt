@@ -249,8 +249,13 @@ object LegacyCommandCompatibility {
     }
 
     private fun translateLegacyEntityType(entityType: String): String? {
-        // These old IDs also represented variants that became distinct modern entity types.
-        if (entityType in setOf("Zombie", "Skeleton", "EntityHorse", "Guardian")) return null
+        // These old IDs represented variants that became distinct modern entity types.
+        when (entityType) {
+            "Zombie" -> return "#minecraft:glap/legacy_zombie"
+            "Skeleton" -> return "#minecraft:glap/legacy_skeleton"
+            "EntityHorse" -> return "#minecraft:glap/legacy_horse"
+            "Guardian" -> return "#minecraft:glap/legacy_guardian"
+        }
         legacyEntityTypes[entityType]?.let { return it }
         SharedConstants.tryDetectVersion()
         val tag = CompoundTag()

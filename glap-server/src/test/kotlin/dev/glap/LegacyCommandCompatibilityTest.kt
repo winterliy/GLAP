@@ -40,7 +40,20 @@ class LegacyCommandCompatibilityTest {
             "execute as @e[type=!minecraft:iron_golem] at @s positioned ~ ~ ~ run say found",
             LegacyCommandCompatibility.translate("execute @e[type=!minecraft:villager_golem] ~ ~ ~ say found")
         )
-        assertNull(LegacyCommandCompatibility.translate("execute @e[type=Zombie] ~ ~ ~ say found"))
+        assertEquals(
+            "execute as @e[type=#minecraft:glap/legacy_zombie] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=Zombie] ~ ~ ~ say found")
+        )
+        assertEquals(
+            "execute as @e[type=!#minecraft:glap/legacy_zombie] at @s positioned ~ ~ ~ run say found",
+            LegacyCommandCompatibility.translate("execute @e[type=!Zombie] ~ ~ ~ say found")
+        )
+        for ((legacy, modern) in listOf("Skeleton" to "legacy_skeleton", "EntityHorse" to "legacy_horse", "Guardian" to "legacy_guardian")) {
+            assertEquals(
+                "execute as @e[type=#minecraft:glap/$modern] at @s positioned ~ ~ ~ run say found",
+                LegacyCommandCompatibility.translate("execute @e[type=$legacy] ~ ~ ~ say found")
+            )
+        }
     }
     @Test
     fun `legacy selector count preserves nearest furthest and unlimited selection`() {
