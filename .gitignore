@@ -64,6 +64,3 @@ manifest.mf
 test-plugin.settings.gradle.kts
 !gradle/wrapper/gradle-wrapper.jar
 
-# documentation kept locally only
-*.md
-README*
